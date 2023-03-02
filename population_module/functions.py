@@ -6,7 +6,9 @@ def add(x: float, y: float) -> float:
 def multiply(x: float, y: float) -> float:
     return x * y
 
+# the functions that are in use (num_args, func)
+# this is because we need to know how many children nodes to generates
 FUNCTIONS = [
-    add,
-    multiply,
+    (2, add),
+    (2, multiply),
 ]
