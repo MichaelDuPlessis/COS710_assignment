@@ -1,2 +1,5 @@
 if __name__ == '__main__':
-    pass
+    def test():
+        pass
+
+    print(type(5))
