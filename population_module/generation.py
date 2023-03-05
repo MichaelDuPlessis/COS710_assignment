@@ -9,11 +9,7 @@ def _generate_tree(current_depth: int, max_depth: int) -> Node:
         arg_count, func = rand.rand_func()
         node = FunctionNode(func=func)
 
-        print(len(node._children))
-        x = [_generate_tree(current_depth + 1, max_depth) for _ in range(arg_count)]
-        print(len(node._children))
-        node.add_children(x)
-        print(len(node._children))
+        node.add_children([_generate_tree(current_depth + 1, max_depth) for _ in range(arg_count)])
         
         return node
     
@@ -23,11 +19,11 @@ def _generate_tree(current_depth: int, max_depth: int) -> Node:
         gen_func = rand.rand_bool()
         if gen_func:
             arg_count, func = rand.rand_func()
-            diffnode = FunctionNode(func=func)
+            node = FunctionNode(func=func)
 
-            diffnode.add_children([_generate_tree(current_depth + 1, max_depth) for _ in range(arg_count)])
+            node.add_children([_generate_tree(current_depth + 1, max_depth) for _ in range(arg_count)])
 
-            return diffnode
+            return node
     
     # whether a paramter or random number should be used
     gen_param = rand.rand_bool()

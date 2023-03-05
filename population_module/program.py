@@ -46,9 +46,9 @@ class ParamNode(Node):
 
 # reprsents a function node which takes a variable amount of paramters an a function list
 class FunctionNode(Node):
-    def __init__(self, func: Callable[..., float], children: List[Node] = []):
+    def __init__(self, func: Callable[..., float]):
         self._function = func # the function that performs some operation
-        self._children = children
+        self._children = []
 
     # implements base class
     def calculate(self, params: Dict[str, float]) -> float:
@@ -62,10 +62,10 @@ class FunctionNode(Node):
             self._children.extend(n)
 
     def node_str(self, depth: int) -> str:
-        return f'{"=" * depth}{self._function}\n{"".join([child.node_str(depth + 1) for child in self._children])}\n'
+        return f'{"=" * depth}{self._function}\n{"".join([child.node_str(depth + 1) for child in self._children])}'
     
     def __str__(self) -> str:
-        return f'{self._function}\n{"".join([child.node_str(1) for child in self._children])}\n'
+        return f'{self._function}\n{"".join([child.node_str(1) for child in self._children])}'
     
 # this is the tree
 class Program:
