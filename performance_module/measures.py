@@ -1,6 +1,7 @@
 import numpy as np
+from typing import List
 
-def rmse(predictions: list[float], targets: list[float]) -> float:
+def rmse(predictions: List[float], targets: List[float]) -> float:
     predictions = np.array(predictions)
     targets = np.array(targets)
     mse = np.mean((predictions - targets)**2)
@@ -8,7 +9,7 @@ def rmse(predictions: list[float], targets: list[float]) -> float:
     
     return rmse
 
-def r_squared(predictions: list[float], targets: list[float]) -> float:
+def r_squared(predictions: List[float], targets: List[float]) -> float:
     predictions = np.array(predictions)
     targets = np.array(targets)
     ss_residual = np.sum((targets - predictions)**2)
@@ -17,13 +18,13 @@ def r_squared(predictions: list[float], targets: list[float]) -> float:
     return r2
 
 
-def median_absolute_error(predictions: list[float], targets: list[float]) -> float:
+def median_absolute_error(predictions: List[float], targets: List[float]) -> float:
     predictions = np.array(predictions)
     targets = np.array(targets)
     mae = np.median(np.abs(predictions - targets))
     return mae
 
-def mean_absolute_error(predictions: list[float], targets: list[float]) -> float:
+def mean_absolute_error(predictions: List[float], targets: List[float]) -> float:
     predictions = np.array(predictions)
     targets = np.array(targets)
     mae = np.mean(np.abs(predictions - targets))

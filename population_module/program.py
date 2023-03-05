@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Callable, List
 
 # interface to for two children nodes
 class Node(ABC):
@@ -28,7 +28,7 @@ class ParamNode(Node):
 
 # reprsents a function node which takes a variable amount of paramters an a function list
 class FunctionNode(Node):
-    def __init__(self, func: function, children: list[Node]):
+    def __init__(self, func: Callable[..., float], children: List[Node]):
         self._function = func # the function that performs some operation
         self._children = children
 
@@ -41,7 +41,7 @@ class FunctionNode(Node):
         self._children.append(node)
     
 # this is the tree
-class Organism:
+class Program:
     def __init__(self, root: Node = None) -> None:
         self._root = root
 
