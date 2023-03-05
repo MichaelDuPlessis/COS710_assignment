@@ -49,4 +49,4 @@ def rand_bool() -> bool:
 
 # generates a random numebr between two ranges
 def rand_num(min: float = -100, max: float = 100) -> float:
-    random.uniform(min, max)
+    return random.uniform(min, max)

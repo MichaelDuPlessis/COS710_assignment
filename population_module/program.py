@@ -9,6 +9,11 @@ class Node(ABC):
     def calculate(self, params: Dict[str, float]) -> float:
         pass
 
+    # to give string representation
+    @abstractmethod
+    def node_str(self, depth: int) -> str:
+        pass
+
 # represents a terminal node (so just a single value) specifically a number
 class NumberNode(Node):
     def __init__(self, val: float):
@@ -18,6 +23,12 @@ class NumberNode(Node):
     def calculate(self, _: Dict[str, float]) -> float:
         return self._val
     
+    def node_str(self, depth: int) -> str:
+        return f'{"=" * depth}{self._val}\n'
+    
+    def __str__(self) -> str:
+        return f'{self._val}\n'
+    
 # represents a terminal node (so just a single value) specifically a paramter
 class ParamNode(Node):
     def __init__(self, param: str):
@@ -26,6 +37,12 @@ class ParamNode(Node):
     # implements base class
     def calculate(self, params: Dict[str, float]) -> float:
         return params[self._param]
+    
+    def node_str(self, depth: int) -> str:
+        return f'{"=" * depth}{self._param}\n'
+    
+    def __str__(self) -> str:
+        return f'{self._param}\n'
 
 # reprsents a function node which takes a variable amount of paramters an a function list
 class FunctionNode(Node):
@@ -38,17 +55,28 @@ class FunctionNode(Node):
         return self._function(*[child.calculate(params) for child in self._children])
     
     # adds a child/childs to the children list
-    def add_children(self, n: Node | Iterable[Node]):
-        # this is weird shit
-        if get_origin(Iterable) and isinstance(n, get_origin(Iterable)) and get_args(Iterable) == (Node,):
-            self._children.extend(n)
-        else:
+    def add_children(self, n: Node | Iterable[Node]):        
+        if isinstance(n, Node):
             self._children.append(n)
+        else:
+            self._children.extend(n)
+
+    def node_str(self, depth: int) -> str:
+        return f'{"=" * depth}{self._function}\n{"".join([child.node_str(depth + 1) for child in self._children])}\n'
+    
+    def __str__(self) -> str:
+        return f'{self._function}\n{"".join([child.node_str(1) for child in self._children])}\n'
     
 # this is the tree
 class Program:
-    def __init__(self, root: Node = None) -> None:
+    def __init__(self, root: Node) -> None:
         self._root = root
 
     def calculate(self) -> float:
         self._root.calculate()
+
+    def tree_str(self) -> str:
+        return self._root.node_str(0)
+    
+    def __str__(self) -> str:
+        return self.tree_str()
