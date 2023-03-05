@@ -43,10 +43,6 @@ def rand_func() -> Tuple[int, Callable[..., float]]:
 def rand_param() -> str:
     return random.choice(PARAMS)
 
-# decided what kind of param to add
-def rand_bool() -> bool:
-    return random.choice([True, False])
-
 # generates a random numebr between two ranges
 def rand_num(min: float = -100, max: float = 100) -> float:
     return random.uniform(min, max)

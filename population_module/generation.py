@@ -1,6 +1,7 @@
 from population_module.program import Program, FunctionNode, NumberNode, ParamNode, Node
 from typing import List
 from random_module import rand
+from random import randint # not using my rand module because it was more confusing when generating the numbers
 
 # generate a single tree of the population
 def _generate_tree(current_depth: int, max_depth: int) -> Node:
@@ -14,24 +15,26 @@ def _generate_tree(current_depth: int, max_depth: int) -> Node:
         return node
     
     # chceking if allowed to generate function
+    # deciding what to generate
+    # 0 = func
+    # 1 = param
+    # 2 = number
     if current_depth < max_depth:
-        # deciding what to generate
-        gen_func = rand.rand_bool()
-        if gen_func:
-            arg_count, func = rand.rand_func()
-            node = FunctionNode(func=func)
+        gen_node = randint(0, 2)
+    else:
+        gen_node = randint(1, 2)
 
-            node.add_children([_generate_tree(current_depth + 1, max_depth) for _ in range(arg_count)])
+    if gen_node == 0:
+        arg_count, func = rand.rand_func()
+        node = FunctionNode(func=func)
 
-            return node
-    
-    # whether a paramter or random number should be used
-    gen_param = rand.rand_bool()
-    if gen_param:
-        return ParamNode(rand.rand_param())
+        node.add_children([_generate_tree(current_depth + 1, max_depth) for _ in range(arg_count)])
+    elif gen_node == 1:
+        node = ParamNode(rand.rand_param())
+    else:
+        node = NumberNode(rand.rand_num()) 
 
-    return NumberNode(rand.rand_num())    
-
+    return node
 
 # create initial population of certain size with certain depth
 def generate_initial_pop(pop_size: int, max_depth: int) -> List[Program]:
