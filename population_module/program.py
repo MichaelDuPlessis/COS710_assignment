@@ -4,6 +4,7 @@ from typing import Dict, Callable, List
 # interface to for two children nodes
 class Node(ABC):
     # used to calulate the value of the tree
+    # params is a dictionarry of the passed in paramters which is used by a child node
     @abstractmethod
     def calculate(self, params: Dict[str, float]) -> float:
         pass
