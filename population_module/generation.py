@@ -8,7 +8,7 @@ def _generate_tree(current_depth: int, max_depth: int) -> Node:
     # if this is the first node we are generating make sure it is a function node
     if current_depth == 0:
         arg_count, func = rand.rand_func()
-        node = FunctionNode(func=func)
+        node = FunctionNode(func)
 
         node.add_children([_generate_tree(current_depth + 1, max_depth) for _ in range(arg_count)])
         
@@ -26,7 +26,7 @@ def _generate_tree(current_depth: int, max_depth: int) -> Node:
 
     if gen_node == 0:
         arg_count, func = rand.rand_func()
-        node = FunctionNode(func=func)
+        node = FunctionNode(func)
 
         node.add_children([_generate_tree(current_depth + 1, max_depth) for _ in range(arg_count)])
     elif gen_node == 1:

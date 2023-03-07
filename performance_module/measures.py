@@ -15,6 +15,7 @@ def r_squared(predictions: List[float], targets: List[float]) -> float:
     ss_residual = np.sum((targets - predictions)**2)
     ss_total = np.sum((targets - np.mean(targets))**2)
     r2 = 1 - (ss_residual / ss_total)
+
     return r2
 
 
@@ -22,10 +23,12 @@ def median_absolute_error(predictions: List[float], targets: List[float]) -> flo
     predictions = np.array(predictions)
     targets = np.array(targets)
     mae = np.median(np.abs(predictions - targets))
+
     return mae
 
 def mean_absolute_error(predictions: List[float], targets: List[float]) -> float:
     predictions = np.array(predictions)
     targets = np.array(targets)
     mae = np.mean(np.abs(predictions - targets))
+    
     return mae

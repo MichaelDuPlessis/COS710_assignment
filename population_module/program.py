@@ -72,8 +72,8 @@ class Program:
     def __init__(self, root: Node) -> None:
         self._root = root
 
-    def calculate(self) -> float:
-        self._root.calculate()
+    def calculate(self, params: Dict[str, float]) -> float:
+        return self._root.calculate(params)
 
     def tree_str(self) -> str:
         return self._root.node_str(0)
