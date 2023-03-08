@@ -32,10 +32,12 @@ def _generate_tree(current_depth: int, max_depth: int) -> Node:
     elif gen_node == 1:
         node = ParamNode(rand.rand_param())
     else:
-        node = NumberNode(rand.rand_num()) 
+        node = NumberNode(rand.rand_num())
 
     return node
 
 # create initial population of certain size with certain depth
 def generate_initial_pop(pop_size: int, max_depth: int) -> List[Program]:
+    assert max_depth > 0, 'Max depth must be > 0'
+
     return [Program(_generate_tree(0, max_depth)) for _ in range(pop_size)]

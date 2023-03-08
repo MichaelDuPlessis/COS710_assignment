@@ -6,8 +6,8 @@ from typing import List
 import random
 
 def tournament(programs: List[Program], tournament_size: int = 4) -> Program:
-    assert tournament_size < len(programs), "Tournament size must be less than population size"
-    assert tournament_size >= 0, "Tournament size must be >= 0"
+    assert tournament_size < len(programs), 'Tournament size must be less than population size'
+    assert tournament_size >= 0, 'Tournament size must be >= 0'
 
     participants = [random.choice(programs) for _ in range(tournament_size)]
 
