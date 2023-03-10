@@ -62,10 +62,10 @@ class FunctionNode(Node):
             self._children.extend(n)
 
     def node_str(self, depth: int) -> str:
-        return f'{"=" * depth}{self._function}\n{"".join([child.node_str(depth + 1) for child in self._children])}'
+        return f'{"=" * depth}{self._function.__name__}\n{"".join([child.node_str(depth + 1) for child in self._children])}'
     
     def __str__(self) -> str:
-        return f'{self._function}\n{"".join([child.node_str(1) for child in self._children])}'
+        return f'{self._function.__name__}\n{"".join([child.node_str(1) for child in self._children])}'
     
 # this is the tree
 class Program:
