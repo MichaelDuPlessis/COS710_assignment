@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Callable, List, Iterable, get_origin, get_args
+from typing import Dict, Callable, Iterable, List
+import random
+
 
 # interface to for two children nodes
 class Node(ABC):
@@ -13,6 +15,10 @@ class Node(ABC):
     @abstractmethod
     def node_str(self, depth: int) -> str:
         pass
+
+    # used for linearizing the tree
+    def _linearize(self, node_list: List['Node']):
+        node_list.append(self)
 
 # represents a terminal node (so just a single value) specifically a number
 class NumberNode(Node):
@@ -61,6 +67,11 @@ class FunctionNode(Node):
         else:
             self._children.extend(n)
 
+    def _linearize(self, node_list: List[Node]):
+        node_list.append(self)
+        for child in self._children:
+            child._linearize(node_list)
+
     def node_str(self, depth: int) -> str:
         return f'{"=" * depth}{self._function.__name__}\n{"".join([child.node_str(depth + 1) for child in self._children])}'
     
@@ -78,5 +89,12 @@ class Program:
     def tree_str(self) -> str:
         return self._root.node_str(0)
     
+    # the node returned is not copied but referenced
+    # this is used in the repoduction file
+    def choose_random_node(self) -> Node:
+        nodes = []
+        self._root._linearize(nodes)
+        return random.choice(nodes)
+        
     def __str__(self) -> str:
         return self.tree_str()
