@@ -4,7 +4,6 @@ from typing import Tuple
 from population_module.program import Node, ParamNode, NumberNode
 from population_module.generation import generate_tree
 from random_module import rand
-import random
 import copy
 
 # programs are cloned in crossover
@@ -25,6 +24,15 @@ def crossover(program1: Node, program2: Node, max_depth: int) -> Tuple[Node, Nod
     parent2 = node2.parent
     depth2 = node2.depth
 
+    children = [child if child != node1 else node2 for child in parent1.children]
+    parent1._children = children
+
+    children = [child if child != node2 else node1 for child in parent2.children]
+    parent2._children = children
+
+    node1.parent = parent2
+    node2.parent = parent1
+
     node1.update_depth(depth2, max_depth)
     node2.update_depth(depth1, max_depth)
 
@@ -44,15 +52,7 @@ def mutate(program: Node, max_depth: int) -> Node:
     
     # if we are at a node that is at the max depth than can only generate terminals
     if chosen_node.depth == max_depth:
-        # deciding what to generate
-        # 0 = param
-        # 1 = number
-        gen_node = random.randint(0, 1)
-
-        if gen_node == 0:
-            new_node = ParamNode(rand.rand_param(), chosen_node.depth)
-        else:
-            new_node = NumberNode(rand.rand_num(), chosen_node.depth)
+        new_node = rand.rand_node([1, 2], chosen_node.depth)
 
         children = [child if child != chosen_node else new_node for child in chosen_parent.children]
         chosen_parent._children = children
