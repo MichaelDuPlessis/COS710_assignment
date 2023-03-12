@@ -3,9 +3,10 @@ from typing import Dict, Callable, Iterable, List
 import random
 
 
-# interface to for two children nodes
+# interface to for three children nodes
 class Node(ABC):
-    def __init__(self, parent: 'Node' = None):
+    def __init__(self, depth: int, parent: 'Node' = None):
+        self.depth = depth # the depth that the current node is at
         self.parent = parent
 
     # used to calulate the value of the tree
@@ -25,8 +26,8 @@ class Node(ABC):
 
 # represents a terminal node (so just a single value) specifically a number
 class NumberNode(Node):
-    def __init__(self, val: float, parent: Node = None):
-        super(NumberNode, self).__init__(parent)
+    def __init__(self, val: float, depth: int, parent: Node = None):
+        super(NumberNode, self).__init__(depth, parent)
         self._val = val
 
     # implements base class
@@ -41,8 +42,8 @@ class NumberNode(Node):
     
 # represents a terminal node (so just a single value) specifically a paramter
 class ParamNode(Node):
-    def __init__(self, param: str, parent: Node = None):
-        super(ParamNode, self).__init__(parent)
+    def __init__(self, param: str, depth: int, parent: Node = None):
+        super(ParamNode, self).__init__(depth, parent)
         self._param = param
 
     # implements base class
@@ -57,8 +58,8 @@ class ParamNode(Node):
 
 # reprsents a function node which takes a variable amount of paramters an a function list
 class FunctionNode(Node):
-    def __init__(self, func: Callable[..., float], parent: Node = None):
-        super(FunctionNode, self).__init__(parent)
+    def __init__(self, func: Callable[..., float], depth: int, parent: Node = None):
+        super(FunctionNode, self).__init__(depth, parent)
         self._function = func # the function that performs some operation
         self._children = []
 
@@ -87,7 +88,7 @@ class FunctionNode(Node):
     def __str__(self) -> str:
         return f'{self._function.__name__}\n{"".join([child.node_str(1) for child in self._children])}'
     
-# this is the tree
+# this is the tree, old code should consider removing
 class Program:
     def __init__(self, root: Node) -> None:
         self._root = root
