@@ -24,10 +24,10 @@ def crossover(program1: Node, program2: Node, max_depth: int) -> Tuple[Node, Nod
     parent2 = node2.parent
     depth2 = node2.depth
 
-    children = [child if child != node1 else node2 for child in parent1.children]
+    children = [child if child != node1 else node2 for child in parent1._children]
     parent1._children = children
 
-    children = [child if child != node2 else node1 for child in parent2.children]
+    children = [child if child != node2 else node1 for child in parent2._children]
     parent2._children = children
 
     node1.parent = parent2
