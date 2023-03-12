@@ -3,12 +3,22 @@
 def add(x: float, y: float) -> float:
     return x + y
 
-def multiply(x: float, y: float) -> float:
+def mul(x: float, y: float) -> float:
     return x * y
+
+def sub(x: float, y: float) -> float:
+    return x - y
+
+def div(x: float, y: float) -> float:
+    if y == 0:
+        return 0
+    return x / y
 
 # the functions that are in use (num_args, func)
 # this is because we need to know how many children nodes to generates
 FUNCTIONS = [
     (2, add),
-    (2, multiply),
+    (2, mul),
+    (2, sub),
+    (2, div),
 ]

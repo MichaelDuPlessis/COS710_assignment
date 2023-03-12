@@ -1,7 +1,7 @@
 # this file is used for producing the next generation
 
 from typing import Tuple
-from population_module.program import Node, ParamNode, NumberNode
+from population_module.program import Node
 from population_module.generation import generate_tree
 from random_module import rand
 import copy
@@ -60,8 +60,10 @@ def mutate(program: Node, max_depth: int) -> Node:
         return program
 
     # else generate tree where subtree cannot go lower than max depth
-    new_subtree = generate_tree(program.depth, max_depth)
-    children = [child if child != chosen_node else new_subtree for child in chosen_parent.children]
+    new_subtree = generate_tree(chosen_node.depth, max_depth)
+    new_subtree.parent = chosen_parent
+    children = [child if child != chosen_node else new_subtree for child in chosen_parent._children]
+
     chosen_parent._children = children
 
     return program

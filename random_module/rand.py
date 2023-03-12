@@ -1,7 +1,6 @@
 import random
 from population_module.functions import FUNCTIONS
 from typing import Callable, Tuple, List
-from population_module.program import FunctionNode, ParamNode, NumberNode
 
 # list of all kinds of params that can be used
 # maybe move later
@@ -47,7 +46,9 @@ def rand_param() -> str:
 # takes list of numbers (max number of node types(3)) and returns one
 # [0, 1, 2] means all nodes
 # [1, 2] means only param or num node
-def rand_node(options: List[int], depth: int) -> Node | Tuple[int, Node]:
+def rand_node(options: List[int], depth: int): # cannot have return type due to circular dependency
+    from population_module.program import FunctionNode, ParamNode, NumberNode
+    
     # deciding what to generate
     # 0 = func
     # 1 = param
@@ -56,7 +57,7 @@ def rand_node(options: List[int], depth: int) -> Node | Tuple[int, Node]:
 
     if gen_node == 0:
         arg_count, func = rand_func()
-        return [arg_count, FunctionNode(func, depth)]
+        return arg_count, FunctionNode(func, depth)
     elif gen_node == 1:
         node = ParamNode(rand_param(), depth)
     else:
