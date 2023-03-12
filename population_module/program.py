@@ -104,7 +104,7 @@ class FunctionNode(Node):
             self.parent = node
         else:
             for child in self._children:
-                child.update_depth()
+                child.update_depth(new_depth + 1, max_depth)
 
     def node_str(self, depth: int) -> str:
         return f'{"=" * depth}{self._function.__name__}\n{"".join([child.node_str(depth + 1) for child in self._children])}'
