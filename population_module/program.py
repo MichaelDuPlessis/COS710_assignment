@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Callable, Iterable, List
 import random
-
+from random_module.rand import rand_node
 
 # interface to for three children nodes
 class Node(ABC):
@@ -19,6 +19,15 @@ class Node(ABC):
     @abstractmethod
     def node_str(self, depth: int) -> str:
         pass
+
+    # updates the nodes depth and is recursive for function node
+    def update_depth(self, new_depth: int, max_depth: int):
+        self.depth = new_depth
+
+    def choose_random_node(self) -> 'Node':
+        nodes = []
+        self._linearize(nodes)
+        return random.choice(nodes)
 
     # used for linearizing the tree
     def _linearize(self, node_list: List['Node']):
@@ -81,6 +90,21 @@ class FunctionNode(Node):
         node_list.append(self)
         for child in self._children:
             child._linearize(node_list)
+
+    # must update depth of children
+    def update_depth(self, new_depth: int, max_depth: int):
+        self.depth = new_depth
+
+        # cannot be function node must update
+        if self.depth == max_depth:
+            # choose new node
+            node = rand_node([1, 2], self.depth)
+
+            # update parent
+            self.parent = node
+        else:
+            for child in self._children:
+                child.update_depth()
 
     def node_str(self, depth: int) -> str:
         return f'{"=" * depth}{self._function.__name__}\n{"".join([child.node_str(depth + 1) for child in self._children])}'

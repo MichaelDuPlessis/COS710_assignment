@@ -8,8 +8,25 @@ import random
 import copy
 
 # programs are cloned in crossover
-def crossover(program1: Node, program2: Node) -> Tuple[Node, Node]:
+def crossover(program1: Node, program2: Node, max_depth: int) -> Tuple[Node, Node]:
     program1, program2 = copy.deepcopy(program1), copy.deepcopy(program2)
+
+    # does not make sense swapping the root of the node
+    node1 = program1.choose_random_node()
+    while node1.parent == None:
+        node1 = program1.choose_random_node()
+
+    node2 = program2.choose_random_node()
+    while node2.parent == None:
+        node2 = program2.choose_random_node()
+    
+    parent1 = node1.parent
+    depth1 = node1.depth
+    parent2 = node2.parent
+    depth2 = node2.depth
+
+    node1.update_depth(depth2, max_depth)
+    node2.update_depth(depth1, max_depth)
 
     return program1, program2
 
