@@ -8,11 +8,6 @@ from population_module.program import NumberNode
 
 if __name__ == '__main__':
     rand.set_seed(1)
-    # x = generate_initial_pop(10, 5)[0]
-    # y = copy.deepcopy(x)
+    x = generate_initial_pop(10, 5)
 
-    # x._root._children[0] = NumberNode(42)
-    # # print(x._root._children[0])
-
-    # print(x)
-    # print(y)
+    print(x[0]._root._children[0].parent == x[0]._root)

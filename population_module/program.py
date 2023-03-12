@@ -5,6 +5,9 @@ import random
 
 # interface to for two children nodes
 class Node(ABC):
+    def __init__(self, parent: 'Node' = None):
+        self.parent = parent
+
     # used to calulate the value of the tree
     # params is a dictionarry of the passed in paramters which is used by a child node
     @abstractmethod
@@ -22,7 +25,8 @@ class Node(ABC):
 
 # represents a terminal node (so just a single value) specifically a number
 class NumberNode(Node):
-    def __init__(self, val: float):
+    def __init__(self, val: float, parent: Node = None):
+        super(NumberNode, self).__init__(parent)
         self._val = val
 
     # implements base class
@@ -37,7 +41,8 @@ class NumberNode(Node):
     
 # represents a terminal node (so just a single value) specifically a paramter
 class ParamNode(Node):
-    def __init__(self, param: str):
+    def __init__(self, param: str, parent: Node = None):
+        super(ParamNode, self).__init__(parent)
         self._param = param
 
     # implements base class
@@ -52,7 +57,8 @@ class ParamNode(Node):
 
 # reprsents a function node which takes a variable amount of paramters an a function list
 class FunctionNode(Node):
-    def __init__(self, func: Callable[..., float]):
+    def __init__(self, func: Callable[..., float], parent: Node = None):
+        super(FunctionNode, self).__init__(parent)
         self._function = func # the function that performs some operation
         self._children = []
 
@@ -63,8 +69,11 @@ class FunctionNode(Node):
     # adds a child/childs to the children list
     def add_children(self, n: Node | Iterable[Node]):        
         if isinstance(n, Node):
+            n.parent = self
             self._children.append(n)
         else:
+            for node in n:
+                node.parent = self
             self._children.extend(n)
 
     def _linearize(self, node_list: List[Node]):
