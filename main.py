@@ -35,7 +35,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
         # seed
         seed = random.randrange(sys.maxsize)
         print(f'The seed for the run is {seed}')
-        rand.set_seed(1134398351272750478)
+        rand.set_seed(seed)
 
         # data for specific run
         run_data = {
@@ -47,7 +47,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
         population = generate_initial_pop(pop_size, max_depth)
         population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
-        best = max(population_fitness)
+        best = max(population_fitness, key=lambda p: p[0])
 
         run_data['generations'].append({
             'generation': 0,
@@ -60,14 +60,14 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             for g in range(1, max_generations):
                 population = generate_next_populateion(population, test_data, max_depth, max_generations * cross_per, max_generations * mut_per, max_generations * repro_per, tournament_size)
                 population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
-                best = max(population_fitness)
+                best = max(population_fitness, key=lambda p: p[0])
 
                 run_data['generations'].append({
                     'generation': g,
                     'best_score': best
                 })
 
-                print('Generation {g} best score: {best[1]}')
+                print(f'Generation {g} best score: {best[0]}')
 
                 if best[0] <= desired_fitness:
                     run_data['desired_found'] = True
@@ -83,5 +83,3 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 if __name__ == '__main__':
     data = read_csv('./data/test.csv')
     run(10, 3, 5, 5, data, save=False)
-    # x = generate_initial_pop(3, 3)
-    # raw_fitness(x, data)

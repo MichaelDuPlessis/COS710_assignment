@@ -52,7 +52,7 @@ def generate_next_populateion(prev_population: List[Node], test_data: List[Dict[
     # maybe change this to be mulithreaded based on pop_size
 
     # crossover
-    population = [crossover(tournament(prev_population, test_data, tournament_size), tournament(prev_population, test_data, tournament_size), cross_amount) for _ in range(math.trunc(cross_amount / 2))]
+    population = [program for program in crossover(tournament(prev_population, test_data, tournament_size), tournament(prev_population, test_data, tournament_size), cross_amount) for _ in range(math.trunc(cross_amount / 2))]
 
     # mutation
     population.extend(mutate(tournament(prev_population, test_data, tournament_size), max_depth) for _ in range(math.trunc(mut_amount)))
