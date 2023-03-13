@@ -11,8 +11,6 @@ if __name__ == '__main__':
     print(seed)
     print()
     rand.set_seed(seed)
-    # 5535402362016755500
-    # 6512001792335970851
     x = generate_initial_pop(10, 5)
 
     y = crossover(x[0], x[1], 5)
