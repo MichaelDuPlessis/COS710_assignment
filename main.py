@@ -3,7 +3,7 @@
 import random
 import sys
 from population_module.generation import generate_initial_pop
-from population_module.reproduction import crossover, mutate
+from population_module.genetic_operators import crossover, mutate
 from random_module import rand
 
 if __name__ == '__main__':
