@@ -11,4 +11,4 @@ def tournament(programs: List[Node], test_data: List[Dict[str, float]], tourname
 
     participants = [random.choice(programs) for _ in range(tournament_size)]
 
-    return max(participants, key=lambda participants: raw_fitness(participants, test_data))
+    return max(participants, key=lambda p: raw_fitness(p, test_data))

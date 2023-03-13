@@ -2,7 +2,6 @@
 
 from typing import Tuple
 from population_module.program import Node
-from population_module.generation import generate_tree
 from random_module import rand
 import copy
 
@@ -41,6 +40,7 @@ def crossover(program1: Node, program2: Node, max_depth: int) -> Tuple[Node, Nod
 # programs are cloned in mutate
 # max depth is used when generating subtrees
 def mutate(program: Node, max_depth: int) -> Node:
+    from population_module.generation import generate_tree
     program = copy.deepcopy(program)
 
     chosen_node = program.choose_random_node()
