@@ -47,16 +47,19 @@ def generate_initial_pop(pop_size: int, max_depth: int) -> List[Node]:
 # create the next population based of a previous generation
 # takes in the amount which should be created from crossover, mutation and reproduction as well as tournament size
 # crossover should not be halved as it is in the function
-def generate_next_populateion(prev_population: List[Node], max_depth: int, cross_amount: int, mut_amount: int, repro_amount: int, tournament_size) -> List[Node]:
+def generate_next_populateion(prev_population: List[Node], max_depth: int, cross_amount: int, mut_amount: int, repro_amount: int, tournament_size: int = 4) -> List[Node]:    
     # maybe change this to be mulithreaded based on pop_size
-    
+
     # crossover
-    population = [crossover(tournament(prev_population, tournament_size), tournament(prev_population, tournament_size), cross_amount) for _ in range(cross_amount / 2)]
+    population = [crossover(tournament(prev_population, tournament_size), tournament(prev_population, tournament_size), cross_amount) for _ in range(cross_amount // 2)]
 
     # mutation
     population.extend(mutate(tournament(prev_population, tournament_size), max_depth) for _ in range(mut_amount))
 
     # reproduction
     population.extend(tournament(prev_population, tournament_size) for _ in range(repro_amount))
+
+    # using reproduction to fill remaining spots
+    population.extend(tournament(prev_population, tournament_size) for _ in range(len(prev_population) - len(population)))
 
     return population
