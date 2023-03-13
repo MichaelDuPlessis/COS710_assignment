@@ -35,7 +35,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
         # seed
         seed = random.randrange(sys.maxsize)
         print(f'The seed for the run is {seed}')
-        rand.set_seed(seed)
+        rand.set_seed(3705477963484607054)
 
         # data for specific run
         run_data = {

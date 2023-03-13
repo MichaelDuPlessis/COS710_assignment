@@ -54,7 +54,7 @@ def mutate(program: Node, max_depth: int) -> Node:
     if chosen_node.depth == max_depth:
         new_node = rand.rand_node([1, 2], chosen_node.depth)
 
-        children = [child if child != chosen_node else new_node for child in chosen_parent.children]
+        children = [child if child != chosen_node else new_node for child in chosen_parent._children]
         chosen_parent._children = children
 
         return program
