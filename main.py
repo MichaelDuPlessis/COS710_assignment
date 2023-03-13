@@ -35,7 +35,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
         # seed
         seed = random.randrange(sys.maxsize)
         print(f'The seed for the run is {seed}')
-        rand.set_seed(3705477963484607054)
+        rand.set_seed(seed)
 
         # data for specific run
         run_data = {
@@ -51,7 +51,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
         run_data['generations'].append({
             'generation': 0,
-            'best_score': best
+            'best_score': best[0]
         })
 
         if best[0] <= desired_fitness:
@@ -64,7 +64,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
                 run_data['generations'].append({
                     'generation': g,
-                    'best_score': best
+                    'best_score': best[0]
                 })
 
                 print(f'Generation {g} best score: {best[0]}')
@@ -74,7 +74,8 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                     print('Desered fitness found stopping')
                     break
 
-        runs_data['runs'].append(runs_data)
+        runs_data['runs'].append(run_data)
+        print()
 
     if save:
         json.dump(runs_data, file)
@@ -82,4 +83,4 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
 if __name__ == '__main__':
     data = read_csv('./data/test.csv')
-    run(10, 3, 5, 5, data, save=False)
+    run(10, 3, 5, 5, data, save=True, runs=3)
