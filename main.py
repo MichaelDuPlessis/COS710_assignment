@@ -11,6 +11,7 @@ import json
 from input_module.file_reader import read_csv
 import argparse
 import time
+import copy
 
 # save is whether the output should be saved to a file or just outputted and runs is the number of runs that must be completed
 # max_generations is the number of generations and the function ends either when desrid fitness is met or max_generations is met

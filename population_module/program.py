@@ -115,7 +115,8 @@ class FunctionNode(Node):
             node = rand_node([1, 2], self.depth)
 
             # update parent
-            self.parent = node
+            children = [child if child != self else node for child in self.parent._children]
+            self.parent._children = children
         else:
             for child in self._children:
                 child.update_depth(new_depth + 1, max_depth)
