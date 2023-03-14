@@ -20,6 +20,11 @@ class Node(ABC):
     def node_str(self, depth: int) -> str:
         pass
 
+    # to serialize a tree into a string
+    @abstractmethod
+    def serialize(self) -> str:
+        pass
+
     # updates the nodes depth and is recursive for function node
     def update_depth(self, new_depth: int, max_depth: int):
         self.depth = new_depth
@@ -43,6 +48,9 @@ class NumberNode(Node):
     def calculate(self, _: Dict[str, float]) -> float:
         return self._val
     
+    def serialize(self) -> str:
+        return f'{self._val}'
+    
     def node_str(self, depth: int) -> str:
         return f'{"=" * depth}{self._val}\n'
     
@@ -58,6 +66,9 @@ class ParamNode(Node):
     # implements base class
     def calculate(self, params: Dict[str, float]) -> float:
         return params[self._param]
+    
+    def serialize(self) -> str:
+        return f'{self._param}'
     
     def node_str(self, depth: int) -> str:
         return f'{"=" * depth}{self._param}\n'
@@ -90,6 +101,9 @@ class FunctionNode(Node):
         node_list.append(self)
         for child in self._children:
             child._linearize(node_list)
+
+    def serialize(self) -> str:
+        return f'{self._function.__name__}({" ".join([child.serialize() for child in self._children])})'
 
     # must update depth of children
     def update_depth(self, new_depth: int, max_depth: int):
