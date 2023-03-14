@@ -35,16 +35,13 @@ def crossover(program1: Node, program2: Node, max_depth: int) -> Tuple[Node, Nod
     node1.update_depth(depth2, max_depth)
     node2.update_depth(depth1, max_depth)
 
-    print(program1)
-    print(program2)
-
     return program1, program2
 
 # programs are cloned in mutate
 # max depth is used when generating subtrees
 def mutate(program: Node, max_depth: int) -> Node:
     from population_module.generation import generate_tree
-    print(program)
+    
     program = copy.deepcopy(program)
 
     chosen_node = program.choose_random_node()
