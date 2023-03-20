@@ -10,8 +10,8 @@ from typing import List, Dict
 import json
 from input_module.file_reader import read_csv
 import argparse
-import time
-import copy
+import os
+import math
 
 # save is whether the output should be saved to a file or just outputted and runs is the number of runs that must be completed
 # max_generations is the number of generations and the function ends either when desrid fitness is met or max_generations is met
@@ -21,8 +21,8 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
         repro_per: float = 0, seed: int = None):
     if save:
         now = datetime.now()
-        dt_string = now.strftime("%d-%m-%Y_%H:%M:%S")
-        file = open(f'./runs/{dt_string}.json', 'w')
+        dt_string = now.strftime("%d-%m-%Y_%H#%M#%S")
+        file = open(os.sep.join(['.', 'runs', f'{dt_string}.json']), 'w')
 
     # data for all runs which will be outputted
     runs_data = {
@@ -115,11 +115,11 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--weights', help='The crossover, mutation and reproduction chances as a comma seperated list e.g. 0.4,0.3,0.3', default='0.5,0.5,0')
     args = parser.parse_args()
 
-    data = read_csv('./data/For_modeling.csv')
+    data = read_csv(os.sep.join(['.', 'data', 'For_modeling.csv']))
 
     weights = [float(w) for w in args.weights.split(',')]
 
-    run(args.pop, args.depth, args.generations, args.fitness, data[:100],
+    run(args.pop, args.depth, args.generations, args.fitness, data[:math.floor(0.7 * len(data))],
         save=args.save, runs=args.runs, tournament_size=args.tournament,
         seed=args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
         )
