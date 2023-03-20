@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 from datetime import datetime
+import math
 import random
 import sys
+import time
 from selection_module.fitness import raw_fitness
 from population_module.generation import generate_initial_pop, generate_next_populateion
 from random_module import rand
@@ -10,8 +12,6 @@ from typing import List, Dict
 import json
 from input_module.file_reader import read_csv
 import argparse
-import time
-import copy
 
 # save is whether the output should be saved to a file or just outputted and runs is the number of runs that must be completed
 # max_generations is the number of generations and the function ends either when desrid fitness is met or max_generations is met
@@ -70,8 +70,6 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             run_data['desired_found'] = True
         else:
             for g in range(1, max_generations):
-                # start = time.time()
-
                 population = generate_next_populateion(population, test_data, max_depth, max_generations * cross_per,
                                                        max_generations * mut_per, max_generations * repro_per, tournament_size)
                 # population[random.randint(0, len(population) - 1)] = best[1]
@@ -92,8 +90,6 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                     run_data['desired_found'] = True
                     print('Desered fitness found stopping')
                     break
-
-                # print(f'Took {time.time() - start}')
 
         runs_data['runs'].append(run_data)
         print()
