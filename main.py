@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 from datetime import datetime
+import math
 import random
 import sys
+import time
 from selection_module.fitness import raw_fitness
 from population_module.generation import generate_initial_pop, generate_next_populateion
 from random_module import rand
@@ -70,8 +72,6 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             run_data['desired_found'] = True
         else:
             for g in range(1, max_generations):
-                # start = time.time()
-
                 population = generate_next_populateion(population, test_data, max_depth, max_generations * cross_per,
                                                        max_generations * mut_per, max_generations * repro_per, tournament_size)
                 # population[random.randint(0, len(population) - 1)] = best[1]
@@ -92,8 +92,6 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                     run_data['desired_found'] = True
                     print('Desered fitness found stopping')
                     break
-
-                # print(f'Took {time.time() - start}')
 
         runs_data['runs'].append(run_data)
         print()
