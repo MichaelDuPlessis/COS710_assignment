@@ -9,6 +9,7 @@ def tournament(programs: List[Node], test_data: List[Dict[str, float]], tourname
     assert tournament_size < len(programs), 'Tournament size must be less than population size'
     assert tournament_size >= 0, 'Tournament size must be >= 0'
 
-    participants = [random.choice(programs) for _ in range(tournament_size)]
+    # participants = [random.choice(programs) for _ in range(tournament_size)]
+    participants = random.choices(programs, k=tournament_size)
 
     return min(participants, key=lambda p: raw_fitness(p, test_data))

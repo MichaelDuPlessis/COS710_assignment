@@ -28,5 +28,5 @@ FUNCTIONS = [
     (2, mul),
     (2, sub),
     (2, div),
-    (1, sqrt),
+    # (1, sqrt),
 ]

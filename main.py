@@ -115,11 +115,11 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--weights', help='The crossover, mutation and reproduction chances as a comma seperated list e.g. 0.4,0.3,0.3', default='0.5,0.5,0')
     args = parser.parse_args()
 
-    data = read_csv('./data/test.csv')
+    data = read_csv('./data/For_modeling.csv')
 
     weights = [float(w) for w in args.weights.split(',')]
 
-    run(args.pop, args.depth, args.generations, args.fitness, data,
+    run(args.pop, args.depth, args.generations, args.fitness, data[:100],
         save=args.save, runs=args.runs, tournament_size=args.tournament,
         seed=args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
         )
