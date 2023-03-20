@@ -59,13 +59,15 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
         }
 
         population = generate_initial_pop(pop_size, max_depth)
-        population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
-        best = min(population_fitness, key=lambda p: p[0])
+        # population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
+        # best = min(population_fitness, key=lambda p: p[0])
+
+        best = (999, 'test')
 
         run_data['generations'].append({
             'generation': 0,
             'best_score': best[0],
-            'best_tree': best[1].serialize()
+            'best_tree': best[1]
         })
 
         if best[0] <= desired_fitness:
@@ -75,18 +77,18 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                 population = generate_next_populateion(population, test_data, max_depth, max_generations * cross_per,
                                                        max_generations * mut_per, max_generations * repro_per, tournament_size)
                 # population[random.randint(0, len(population) - 1)] = best[1]
-                population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
-                best = min(population_fitness, key=lambda p: p[0])
+                # population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
+                # best = min(population_fitness, key=lambda p: p[0])
 
                 run_data['generations'].append({
                     'generation': g,
                     'best_score': best[0],
-                    'best_tree': best[1].serialize()
+                    'best_tree': best[1]
                 })
 
                 # only printing every 10th generation should make command line parameter
-                if g % 10 == 0:
-                    print(f'Generation {g} best score: {best[0]}')
+                # if g % 10 == 0:
+                print(f'Generation {g} best score: {best[0]}')
 
                 if best[0] <= desired_fitness:
                     run_data['desired_found'] = True
@@ -99,6 +101,9 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
     if save:
         json.dump(runs_data, file)
         file.close()
+
+    population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
+    best = min(population_fitness, key=lambda p: p[0])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
