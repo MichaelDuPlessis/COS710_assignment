@@ -20,7 +20,7 @@ import math
 # cross_per + mut_per + repro_per = 1 must be true
 def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: float, test_data: List[Dict[str, float]], 
         tournament_size: int = 4, runs: int = 1, save: bool = False, cross_per: float = 0.5, mut_per: float = 0.5,
-        repro_per: float = 0, seed: int = None):
+        repro_per: float = 0, seed: int = None , seed_set: bool = False):
     if save:
         now = datetime.now()
         dt_string = now.strftime("%d-%m-%Y_%H#%M#%S")
@@ -40,7 +40,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
         print(f'Starting run: {r}')
 
         # seed
-        if not seed:
+        if not seed_set:
             seed = random.randrange(sys.maxsize)
         print(f'The seed for the run is {seed}')
         rand.set_seed(seed)
@@ -58,42 +58,49 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             'generations': [] # list of all the generations as the best of each generation
         }
 
+        start = time.time()
         population = generate_initial_pop(pop_size, max_depth)
-        # population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
-        # best = min(population_fitness, key=lambda p: p[0])
-
-        best = (999, 'test')
+        population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
+        best = min(population_fitness, key=lambda p: p[0])
 
         run_data['generations'].append({
             'generation': 0,
             'best_score': best[0],
-            'best_tree': best[1]
+            'best_tree': best[1].serialize()
         })
 
         if best[0] <= desired_fitness:
             run_data['desired_found'] = True
         else:
             for g in range(1, max_generations):
-                population = generate_next_populateion(population, test_data, max_depth, max_generations * cross_per,
+                population = generate_next_populateion(population_fitness, max_depth, max_generations * cross_per,
                                                        max_generations * mut_per, max_generations * repro_per, tournament_size)
-                # population[random.randint(0, len(population) - 1)] = best[1]
-                # population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
-                # best = min(population_fitness, key=lambda p: p[0])
+
+                population[random.randint(0, len(population) - 1)] = best[1]
+                population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
+                best = min(population_fitness, key=lambda p: p[0])
 
                 run_data['generations'].append({
                     'generation': g,
                     'best_score': best[0],
-                    'best_tree': best[1]
+                    'best_tree': best[1].serialize()
                 })
 
                 # only printing every 10th generation should make command line parameter
-                # if g % 10 == 0:
-                print(f'Generation {g} best score: {best[0]}')
+                if g % 10 == 0:
+                    print(f'Generation {g} best score: {best[0]}')
 
                 if best[0] <= desired_fitness:
                     run_data['desired_found'] = True
                     print('Desered fitness found stopping')
                     break
+
+        print(f'Generation {max_generations - 1} best score: {best[0]}')
+
+        run_data['time'] = time.time() - start
+
+        run_data['best'] = best[0]
+        run_data['best_tree'] = best[1].serialize()
 
         runs_data['runs'].append(run_data)
         print()
@@ -101,9 +108,6 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
     if save:
         json.dump(runs_data, file)
         file.close()
-
-    population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
-    best = min(population_fitness, key=lambda p: p[0])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -122,7 +126,11 @@ if __name__ == '__main__':
 
     weights = [float(w) for w in args.weights.split(',')]
 
-    run(args.pop, args.depth, args.generations, args.fitness, data[:math.floor(0.7 * len(data))],
+
+    print(f'Start: {time.time()}')
+    run(args.pop, args.depth, args.generations, args.fitness, data[:math.floor(0.01 * len(data))],
         save=args.save, runs=args.runs, tournament_size=args.tournament,
-        seed=args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
+        seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
         )
+    print(f'End: {time.time()}')
+    

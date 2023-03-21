@@ -1,10 +1,10 @@
 # contains all the logic related to calculating the fitness
 
-import multiprocessing
 from typing import Dict, List
 from population_module.program import Node
-# from pathos.multiprocessing import ProcessingPool as Pool
 from multiprocessing import Pool
+
+cache = {} # used to cache tress so that they don't need to be recalculated
 
 class Please:
     def __init__(self, program):
@@ -14,6 +14,11 @@ class Please:
 
 # calulates the raw fitness for a singular progra and some test data
 def raw_fitness(program: Node, test_data: List[Dict[str, float]]) -> float:
-    # return sum([abs(program.calculate(data) - data['Duration']) for data in test_data])
+    program_str = program.serialize()
+    if program_str in cache:
+        return cache[program_str]
+    
     with Pool() as pool:
-        return sum(pool.map(Please(program), test_data))
+        fitness = sum(pool.map(Please(program), test_data))
+        cache[program_str] = fitness
+        return fitness

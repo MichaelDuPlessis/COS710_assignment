@@ -67,5 +67,5 @@ def rand_node(options: List[int], depth: int): # cannot have return type due to 
 
 
 # generates a random numebr between two ranges
-def rand_num(min: float = -100, max: float = 100) -> float:
+def rand_num(min: float = -5, max: float = 5) -> float:
     return random.uniform(min, max)
