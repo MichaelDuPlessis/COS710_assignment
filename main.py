@@ -24,16 +24,8 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
     if save:
         now = datetime.now()
         dt_string = now.strftime("%d-%m-%Y_%H#%M#%S")
-        file = open(os.sep.join(['.', 'runs', f'{dt_string}.json']), 'w')
-
-    # data for all runs which will be outputted
-    runs_data = {
-        'pop_size': pop_size,
-        'max_depth': max_depth,
-        'max_generations': max_generations,
-        'desired_fitness': desired_fitness,
-        'runs': []
-    }
+        folder = os.sep.join(['.', 'runs', f'{dt_string}'])
+        os.mkdir(folder)
 
     for r in range(runs):
         # run number
@@ -47,6 +39,10 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
         # data for specific run
         run_data = {
+            'pop_size': pop_size,
+            'max_depth': max_depth,
+            'max_generations': max_generations,
+            'desired_fitness': desired_fitness,
             'run': r,
             'weights': [
                 cross_per,
@@ -87,7 +83,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                 })
 
                 # only printing every 10th generation should make command line parameter
-                if g % 10 == 0:
+                if (g + 1) % 10 == 0:
                     print(f'Generation {g} best score: {best[0]}')
 
                 if best[0] <= desired_fitness:
@@ -95,19 +91,17 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                     print('Desered fitness found stopping')
                     break
 
-        print(f'Generation {max_generations - 1} best score: {best[0]}')
-
         run_data['time'] = time.time() - start
 
         run_data['best'] = best[0]
         run_data['best_tree'] = best[1].serialize()
 
-        runs_data['runs'].append(run_data)
         print()
 
-    if save:
-        json.dump(runs_data, file)
-        file.close()
+        if save:
+            file = open(os.sep.join(['.', folder, f'{r}.json']), 'w')
+            json.dump(run_data, file)
+            file.close()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -122,7 +116,7 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--weights', help='The crossover, mutation and reproduction chances as a comma seperated list e.g. 0.4,0.3,0.3', default='0.5,0.5,0')
     args = parser.parse_args()
 
-    data = read_csv(os.sep.join(['.', 'data', 'For_modeling.csv']))
+    data = read_csv(os.sep.join(['.', 'data', 'test.csv']))
 
     weights = [float(w) for w in args.weights.split(',')]
 
