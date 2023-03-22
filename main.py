@@ -5,6 +5,7 @@ import math
 import random
 import sys
 import time
+from performance_module.measures import run_all_measures
 from selection_module.fitness import raw_fitness
 from population_module.generation import generate_initial_pop, generate_next_populateion
 from random_module import rand
@@ -18,9 +19,9 @@ import math
 # save is whether the output should be saved to a file or just outputted and runs is the number of runs that must be completed
 # max_generations is the number of generations and the function ends either when desrid fitness is met or max_generations is met
 # cross_per + mut_per + repro_per = 1 must be true
-def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: float, test_data: List[Dict[str, float]], 
-        tournament_size: int = 4, runs: int = 1, save: bool = False, cross_per: float = 0.5, mut_per: float = 0.5,
-        repro_per: float = 0, seed: int = None , seed_set: bool = False):
+def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: float, train_data: List[Dict[str, float]],
+        test_data: List[Dict[str, float]], tournament_size: int = 4, runs: int = 1, save: bool = False, cross_per: float = 0.5,
+        mut_per: float = 0.5, repro_per: float = 0, seed: int = None , seed_set: bool = False):
     if save:
         now = datetime.now()
         dt_string = now.strftime("%d-%m-%Y_%H#%M#%S")
@@ -56,7 +57,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
         start = time.time()
         population = generate_initial_pop(pop_size, max_depth)
-        population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
+        population_fitness = [(raw_fitness(p, train_data), p) for p in population] # fitness first as max looks at first element in tuple
         best = min(population_fitness, key=lambda p: p[0])
 
         run_data['generations'].append({
@@ -65,7 +66,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             'best_tree': best[1].serialize()
         })
 
-        if best[0] / len(test_data) <= desired_fitness:
+        if best[0] / len(train_data) <= desired_fitness: # taking average for fitness
             run_data['desired_found'] = True
         else:
             for g in range(1, max_generations):
@@ -73,7 +74,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                                                        pop_size * mut_per, pop_size * repro_per, tournament_size)
 
                 population[random.randint(0, len(population) - 1)] = best[1]
-                population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
+                population_fitness = [(raw_fitness(p, train_data), p) for p in population] # fitness first as max looks at first element in tuple
                 best = min(population_fitness, key=lambda p: p[0])
 
                 # only printing every 10th generation should make command line parameter
@@ -85,7 +86,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                         'best_tree': best[1].serialize()
                     })
 
-                if best[0] / len(test_data) <= desired_fitness:
+                if best[0] / len(train_data) <= desired_fitness: # taking average for fitness
                     run_data['desired_found'] = True
                     print('Desered fitness found stopping')
                     break
@@ -94,6 +95,15 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
         run_data['best'] = best[0]
         run_data['best_tree'] = best[1].serialize()
+
+        rmse, r_squared, median_absolute_error, mean_absolute_error = run_all_measures(best[1], test_data)
+
+        run_data['measures'] = {
+            'rmse': rmse,
+            'r_squared': r_squared,
+            'median_absolute_error' : median_absolute_error,
+            'mean_absolute_error': mean_absolute_error
+        }
 
         print()
 
@@ -117,10 +127,10 @@ if __name__ == '__main__':
 
     weights = [float(w) for w in args.weights.split(',')]
 
-    data = read_csv(os.sep.join(['.', 'data', 'For_modeling.csv']), 100_000)
+    data = read_csv(os.sep.join(['.', 'data', 'For_modeling.csv']), 150_000)
 
     print(f'Start: {time.time()}')
-    run(args.pop, args.depth, args.generations, args.fitness, data,
+    run(args.pop, args.depth, args.generations, args.fitness, data[:100_000], data[100_000:],
         save=args.save, runs=args.runs, tournament_size=args.tournament,
         seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
     )

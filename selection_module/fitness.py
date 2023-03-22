@@ -4,7 +4,8 @@ from typing import Dict, Iterable, List
 from population_module.program import Node
 from multiprocessing import Pool
 
-class Please:
+# this class is needed as an intermediary as pool.map cannot accept lambdas
+class RunProgram:
     def __init__(self, program):
         self.program = program
     def __call__(self, data):
@@ -13,5 +14,5 @@ class Please:
 # calulates the raw fitness for a singular progra and some test data
 def raw_fitness(program: Node, test_data: Iterable) -> float:
     with Pool() as pool:
-        fitness = sum(pool.map(Please(program), test_data))
+        fitness = sum(pool.map(RunProgram(program), test_data))
         return fitness
