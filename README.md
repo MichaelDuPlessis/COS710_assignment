@@ -20,5 +20,7 @@ The following paramters can be specified as command line inputs:
 - The maximum depth of every tree.
 - The weights to be used as a comma seperated list e.g. 0.7,0.2,0.1 where the order is crossover,mutation,reproduction.
 - Whether you want to save the run or not.
+- The path to the data set
+- The size of the training and testing set
 
-Type python main.py -h for help
+Type python main.py -h for help and all paramters have default values

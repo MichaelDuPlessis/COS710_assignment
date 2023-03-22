@@ -22,6 +22,9 @@ import math
 def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: float, train_data: List[Dict[str, float]],
         test_data: List[Dict[str, float]], tournament_size: int = 4, runs: int = 1, save: bool = False, cross_per: float = 0.5,
         mut_per: float = 0.5, repro_per: float = 0, seed: int = None , seed_set: bool = False):
+    
+    training_data_size = len(train_data)
+
     if save:
         now = datetime.now()
         dt_string = now.strftime("%d-%m-%Y_%H#%M#%S")
@@ -45,6 +48,11 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             'max_generations': max_generations,
             'desired_fitness': desired_fitness,
             'run': r,
+            'data_set_size': {
+                'training': training_data_size,
+                'testing': len(test_data) 
+            },
+            'tournament_size': tournament_size,
             'weights': [
                 cross_per,
                 mut_per,
@@ -66,7 +74,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             'best_tree': best[1].serialize()
         })
 
-        if best[0] / len(train_data) <= desired_fitness: # taking average for fitness
+        if best[0] / training_data_size <= desired_fitness: # taking average for fitness
             run_data['desired_found'] = True
         else:
             for g in range(1, max_generations):
@@ -79,31 +87,41 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
                 # only printing every 10th generation should make command line parameter
                 if (g + 1) % 10 == 0:
-                    print(f'Generation {g} best score: {best[0]}')
+                    print(f'Generation {g} best score: {best[0] / training_data_size}')
                     run_data['generations'].append({
                         'generation': g,
                         'best_score': best[0],
                         'best_tree': best[1].serialize()
                     })
 
-                if best[0] / len(train_data) <= desired_fitness: # taking average for fitness
+                if best[0] / training_data_size <= desired_fitness: # taking average for fitness
                     run_data['desired_found'] = True
                     print('Desered fitness found stopping')
                     break
 
         run_data['time'] = time.time() - start
 
-        run_data['best'] = best[0]
+        run_data['best'] = best[0] / training_data_size
         run_data['best_tree'] = best[1].serialize()
+        run_data['generations_completed'] = g
 
-        rmse, r_squared, median_absolute_error, mean_absolute_error = run_all_measures(best[1], test_data)
-
+        rmse, r_squared, median_absolute_error, mean_absolute_error = run_all_measures(best[1], train_data)
         run_data['measures'] = {
-            'rmse': rmse,
-            'r_squared': r_squared,
-            'median_absolute_error' : median_absolute_error,
-            'mean_absolute_error': mean_absolute_error
+            'training': {
+                'rmse': rmse,
+                'r_squared': r_squared,
+                'median_absolute_error' : median_absolute_error,
+                'mean_absolute_error': mean_absolute_error
+            }
         }
+
+        rmse, r_squared, median_absolute_error, mean_absolute_error = run_all_measures(best[1], train_data)
+        run_data['measures']['testing'] = {
+                'rmse': rmse,
+                'r_squared': r_squared,
+                'median_absolute_error' : median_absolute_error,
+                'mean_absolute_error': mean_absolute_error
+            }
 
         print()
 
@@ -123,14 +141,17 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--fitness', help='The desired fitness to reach (lower is better)', default=5.0, type=float)
     parser.add_argument('-t', '--tournament', help='The size of the tournament for tournament selection', default=4, type=int)
     parser.add_argument('-w', '--weights', help='The crossover, mutation and reproduction chances as a comma seperated list e.g. 0.4,0.3,0.3', default='0.5,0.5,0')
+    parser.add_argument('-i', '--train', help='The amount from the data set to be trained on', default=100_000, type=int)
+    parser.add_argument('-j', '--test', help='The amount from the data set to be tested on', default=50_000, type=int)
+    parser.add_argument('-P', '--path', help='The path to the data set', default=os.sep.join(['.', 'data', 'For_modeling.csv']), type=str)
     args = parser.parse_args()
 
     weights = [float(w) for w in args.weights.split(',')]
 
-    data = read_csv(os.sep.join(['.', 'data', 'For_modeling.csv']), 150_000)
+    data = read_csv(args.path, args.train + args.test)
 
     print(f'Start: {time.time()}')
-    run(args.pop, args.depth, args.generations, args.fitness, data[:100_000], data[100_000:],
+    run(args.pop, args.depth, args.generations, args.fitness, data[:args.train], data[args.train:],
         save=args.save, runs=args.runs, tournament_size=args.tournament,
         seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
     )

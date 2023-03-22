@@ -5,8 +5,6 @@ from typing import List, Dict, Tuple
 from population_module.program import Node
 from multiprocessing import Pool
 
-from selection_module.fitness import RunProgram
-
 def rmse(predictions: List[float], targets: List[float]) -> float:
     predictions = np.array(predictions)
     targets = np.array(targets)
@@ -39,11 +37,17 @@ def mean_absolute_error(predictions: List[float], targets: List[float]) -> float
     
     return mae
 
+# this class is needed as an intermediary as pool.map cannot accept lambdas
+class RunProgram:
+    def __init__(self, program):
+        self.program = program
+    def __call__(self, data):
+        return (self.program.calculate(data), float(data['Duration']))
+
 # runs all the performance measures for a given tree and data set
 # frequires the tree/program and data set
 def run_all_measures(program: Node, data: List[Dict[str, float]]) -> Tuple[float, float, float, float]:
     with Pool() as pool:
-        # prediction_target = [(program.calculate(d), d['Duration']) for d in data]
         prediction_target = pool.map(RunProgram(program), data)
         predictions, targets = zip(*prediction_target)
 
