@@ -65,7 +65,7 @@ class ParamNode(Node):
 
     # implements base class
     def calculate(self, params: Dict[str, float]) -> float:
-        return params[self._param]
+        return float(params[self._param])
     
     def serialize(self) -> str:
         return f'{self._param}'

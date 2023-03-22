@@ -14,6 +14,8 @@ from input_module.file_reader import read_csv
 import argparse
 import os
 import math
+from itertools import islice
+import csv
 
 # save is whether the output should be saved to a file or just outputted and runs is the number of runs that must be completed
 # max_generations is the number of generations and the function ends either when desrid fitness is met or max_generations is met
@@ -69,22 +71,21 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             run_data['desired_found'] = True
         else:
             for g in range(1, max_generations):
-                population = generate_next_populateion(population_fitness, max_depth, max_generations * cross_per,
-                                                       max_generations * mut_per, max_generations * repro_per, tournament_size)
+                population = generate_next_populateion(population_fitness, max_depth, pop_size * cross_per,
+                                                       pop_size * mut_per, pop_size * repro_per, tournament_size)
 
                 population[random.randint(0, len(population) - 1)] = best[1]
                 population_fitness = [(raw_fitness(p, test_data), p) for p in population] # fitness first as max looks at first element in tuple
                 best = min(population_fitness, key=lambda p: p[0])
 
-                run_data['generations'].append({
-                    'generation': g,
-                    'best_score': best[0],
-                    'best_tree': best[1].serialize()
-                })
-
                 # only printing every 10th generation should make command line parameter
                 if (g + 1) % 10 == 0:
                     print(f'Generation {g} best score: {best[0]}')
+                    run_data['generations'].append({
+                        'generation': g,
+                        'best_score': best[0],
+                        'best_tree': best[1].serialize()
+                    })
 
                 if best[0] <= desired_fitness:
                     run_data['desired_found'] = True
@@ -116,15 +117,16 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--weights', help='The crossover, mutation and reproduction chances as a comma seperated list e.g. 0.4,0.3,0.3', default='0.5,0.5,0')
     args = parser.parse_args()
 
-    data = read_csv(os.sep.join(['.', 'data', 'test.csv']))
-
     weights = [float(w) for w in args.weights.split(',')]
 
+    with open(os.sep.join(['.', 'data', 'For_modeling.csv'])) as file:
+        data = csv.DictReader(file)
+        data = list(islice(data, 100_000))
 
-    print(f'Start: {time.time()}')
-    run(args.pop, args.depth, args.generations, args.fitness, data[:math.floor(0.01 * len(data))],
-        save=args.save, runs=args.runs, tournament_size=args.tournament,
-        seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
+        print(f'Start: {time.time()}')
+        run(args.pop, args.depth, args.generations, args.fitness, data,
+            save=args.save, runs=args.runs, tournament_size=args.tournament,
+            seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
         )
-    print(f'End: {time.time()}')
+        print(f'End: {time.time()}')
     
