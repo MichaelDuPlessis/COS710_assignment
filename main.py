@@ -14,8 +14,6 @@ from input_module.file_reader import read_csv
 import argparse
 import os
 import math
-from itertools import islice
-import csv
 
 # save is whether the output should be saved to a file or just outputted and runs is the number of runs that must be completed
 # max_generations is the number of generations and the function ends either when desrid fitness is met or max_generations is met
@@ -67,7 +65,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             'best_tree': best[1].serialize()
         })
 
-        if best[0] <= desired_fitness:
+        if best[0] / len(test_data) <= desired_fitness:
             run_data['desired_found'] = True
         else:
             for g in range(1, max_generations):
@@ -87,7 +85,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                         'best_tree': best[1].serialize()
                     })
 
-                if best[0] <= desired_fitness:
+                if best[0] / len(test_data) <= desired_fitness:
                     run_data['desired_found'] = True
                     print('Desered fitness found stopping')
                     break
@@ -119,14 +117,12 @@ if __name__ == '__main__':
 
     weights = [float(w) for w in args.weights.split(',')]
 
-    with open(os.sep.join(['.', 'data', 'For_modeling.csv'])) as file:
-        data = csv.DictReader(file)
-        data = list(islice(data, 100_000))
+    data = read_csv(os.sep.join(['.', 'data', 'For_modeling.csv']), 100_000)
 
-        print(f'Start: {time.time()}')
-        run(args.pop, args.depth, args.generations, args.fitness, data,
-            save=args.save, runs=args.runs, tournament_size=args.tournament,
-            seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
-        )
-        print(f'End: {time.time()}')
+    print(f'Start: {time.time()}')
+    run(args.pop, args.depth, args.generations, args.fitness, data,
+        save=args.save, runs=args.runs, tournament_size=args.tournament,
+        seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
+    )
+    print(f'End: {time.time()}')
     

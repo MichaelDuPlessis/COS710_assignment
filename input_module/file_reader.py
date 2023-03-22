@@ -1,6 +1,8 @@
 from typing import Dict, List
 import csv
+from itertools import islice
 
-def read_csv(filename: str) -> csv.DictReader:
+def read_csv(filename: str, amount: int) -> csv.DictReader:
     with open(filename) as file:
-        return csv.DictReader(file)
+        data = csv.DictReader(file)
+        return list(islice(data, amount))

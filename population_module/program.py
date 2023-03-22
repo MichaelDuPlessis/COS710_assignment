@@ -126,24 +126,3 @@ class FunctionNode(Node):
     
     def __str__(self) -> str:
         return f'{self._function.__name__}\n{"".join([child.node_str(1) for child in self._children])}'
-    
-# this is the tree, old code should consider removing
-class Program:
-    def __init__(self, root: Node) -> None:
-        self._root = root
-
-    def calculate(self, params: Dict[str, float]) -> float:
-        return self._root.calculate(params)
-
-    def tree_str(self) -> str:
-        return self._root.node_str(0)
-    
-    # the node returned is not copied but referenced
-    # this is used in the repoduction file
-    def choose_random_node(self) -> Node:
-        nodes = []
-        self._root._linearize(nodes)
-        return random.choice(nodes)
-        
-    def __str__(self) -> str:
-        return self.tree_str()
