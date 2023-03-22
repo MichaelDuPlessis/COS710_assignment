@@ -74,8 +74,10 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             'best_tree': best[1].serialize()
         })
 
+        g = 0 # incase loop is never entered
         if best[0] / training_data_size <= desired_fitness: # taking average for fitness
             run_data['desired_found'] = True
+            print('Desered fitness found stopping')
         else:
             for g in range(1, max_generations):
                 population = generate_next_populateion(population_fitness, max_depth, pop_size * cross_per,
