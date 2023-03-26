@@ -46,9 +46,13 @@ class RunProgram:
 
 # runs all the performance measures for a given tree and data set
 # frequires the tree/program and data set
-def run_all_measures(program: Node, data: List[Dict[str, float]]) -> Tuple[float, float, float, float]:
-    with Pool() as pool:
-        prediction_target = pool.map(RunProgram(program), data)
+def run_all_measures(program: Node, data: List[Dict[str, float]], multithreading: int = None) -> Tuple[float, float, float, float]:
+    if multithreading:
+        with Pool(multithreading) as pool:
+            prediction_target = pool.map(RunProgram(program), data)
+            predictions, targets = zip(*prediction_target)
+    else:
+        prediction_target = [(program.calculate(d), float(d['Duration'])) for d in data]
         predictions, targets = zip(*prediction_target)
 
-        return rmse(predictions, targets), r_squared(predictions, targets), median_absolute_error(predictions, targets), mean_absolute_error(predictions, targets)
+    return rmse(predictions, targets), r_squared(predictions, targets), median_absolute_error(predictions, targets), mean_absolute_error(predictions, targets)

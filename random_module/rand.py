@@ -6,11 +6,11 @@ from typing import Callable, Tuple, List
 # maybe move later
 PARAMS = [
     'Distance',
-    # 'PLong',
-    # 'PLatd',
-    # 'DLong',
-    # 'DLatd',
-    # 'Haversine',
+    'PLong',
+    'PLatd',
+    'DLong',
+    'DLatd',
+    'Haversine',
     'Pmonth',
     'Pday',
     'Phour',

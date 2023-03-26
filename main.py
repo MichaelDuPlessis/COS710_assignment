@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import math
+import multiprocessing
 import random
 import sys
 import time
@@ -21,7 +22,7 @@ import math
 # cross_per + mut_per + repro_per = 1 must be true
 def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: float, train_data: List[Dict[str, float]],
         test_data: List[Dict[str, float]], tournament_size: int = 4, runs: int = 1, save: bool = False, cross_per: float = 0.5,
-        mut_per: float = 0.5, repro_per: float = 0, seed: int = None , seed_set: bool = False):
+        mut_per: float = 0.5, repro_per: float = 0, seed: int = None , seed_set: bool = False, multithreading: int = None):
     
     training_data_size = len(train_data)
 
@@ -65,7 +66,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
         start = time.time()
         population = generate_initial_pop(pop_size, max_depth)
-        population_fitness = [(raw_fitness(p, train_data), p) for p in population] # fitness first as max looks at first element in tuple
+        population_fitness = [(raw_fitness(p, train_data, multithreading=multithreading), p) for p in population] # fitness first as max looks at first element in tuple
         best = min(population_fitness, key=lambda p: p[0])
 
         run_data['generations'].append({
@@ -84,7 +85,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
                                                        pop_size * mut_per, pop_size * repro_per, tournament_size)
 
                 population[random.randint(0, len(population) - 1)] = best[1]
-                population_fitness = [(raw_fitness(p, train_data), p) for p in population] # fitness first as max looks at first element in tuple
+                population_fitness = [(raw_fitness(p, train_data, multithreading=multithreading), p) for p in population] # fitness first as max looks at first element in tuple
                 best = min(population_fitness, key=lambda p: p[0])
 
                 # only printing every 10th generation should make command line parameter
@@ -107,7 +108,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
         run_data['best_tree'] = best[1].serialize()
         run_data['generations_completed'] = g
 
-        rmse, r_squared, median_absolute_error, mean_absolute_error = run_all_measures(best[1], train_data)
+        rmse, r_squared, median_absolute_error, mean_absolute_error = run_all_measures(best[1], train_data, multithreading=multithreading)
         run_data['measures'] = {
             'training': {
                 'rmse': rmse,
@@ -117,7 +118,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
             }
         }
 
-        rmse, r_squared, median_absolute_error, mean_absolute_error = run_all_measures(best[1], train_data)
+        rmse, r_squared, median_absolute_error, mean_absolute_error = run_all_measures(best[1], test_data)
         run_data['measures']['testing'] = {
                 'rmse': rmse,
                 'r_squared': r_squared,
@@ -134,7 +135,7 @@ def run(pop_size: int, max_depth: int, max_generations: int, desired_fitness: fl
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--save', help='Whether the output of the runs should be saved to a file', action='store_true')
+    parser.add_argument('-s', '--save', help='Whether the output of the runs should be saved to a file. default true', action='store_true')
     parser.add_argument('-p', '--pop', help='The size of the population. default 10', default=10, type=int)
     parser.add_argument('-e', '--seed', help='The seed to be used in every run', type=int)
     parser.add_argument('-r', '--runs', help='The number of runs to perform. default 3', default=3, type=int)
@@ -144,9 +145,10 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--tournament', help='The size of the tournament for tournament selection. default 4', default=4, type=int)
     parser.add_argument('-w', '--weights', help='The crossover, mutation and reproduction chances as a comma seperated list e.g. 0.4,0.3,0.3. default "0.5,0.5,0"', default='0.5,0.5,0')
     parser.add_argument('-i', '--train', help='The amount from the data set to be trained on. default 100000', default=100_000, type=int)
-    parser.add_argument('-j', '--test', help='The amount from the data set to be tested on. default 50000', default=50_000, type=int)
+    parser.add_argument('-j', '--test', help='The amount from the data set to be tested on. default 25000', default=25_000, type=int)
     default_path = os.sep.join(['.', 'data', 'For_modeling.csv'])
     parser.add_argument('-P', '--path', help=f'The path to the data set. default {default_path}', default=default_path, type=str)
+    parser.add_argument('-m', '--multithreading', help=f'Whether multithreading should be used and number of cores to use. default off', type=int)
     args = parser.parse_args()
 
     weights = [float(w) for w in args.weights.split(',')]
@@ -155,7 +157,7 @@ if __name__ == '__main__':
 
     print(f'Start: {time.time()}')
     run(args.pop, args.depth, args.generations, args.fitness, data[:args.train], data[args.train:],
-        save=args.save, runs=args.runs, tournament_size=args.tournament,
+        save=args.save, runs=args.runs, tournament_size=args.tournament, multithreading=args.multithreading,
         seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
     )
     print(f'End: {time.time()}')
