@@ -171,8 +171,6 @@ class FunctionNode(Node):
             if cur_node.depth > depth:
                 return nodes_vals
             
-            
-
             if type(cur_node) is FunctionNode:
                 nodes_vals.append(function_id(cur_node._function))
 

@@ -6,11 +6,16 @@ from population_module.genetic_operators import crossover, mutate
 from selection_module.selection import tournament
 import math
 import copy
+from collections import deque
 
-# generate a single tree of the population
+# generate a single tree of the population from 0 to max depth
 def generate_tree(current_depth: int, max_depth: int) -> Node:
+    return generate_tree(current_depth, 0, max_depth)
+
+# generate a single tree of the population from 0 to max depth
+def generate_tree(current_depth: int, min_depth: int, max_depth: int) -> Node:
     # if this is the first node we are generating make sure it is a function node
-    if current_depth == 0:
+    if current_depth <= min_depth:
         arg_count, func = rand.rand_func()
         node = FunctionNode(func, current_depth)
 
@@ -59,8 +64,35 @@ def generate_initial_pop(pop_size: int, max_depth: int, gsim: Set[List[int]]) ->
     return population
 
 # generate a new population based off of a local optimum
-def generate_with_initial_structure(pop_size: int, max_depth: int, initial_structure: FunctionNode):
-    pass
+def generate_pop_with_initial_structure(pop_size: int, max_depth: int, initial_structure: List[int], structure_depth: int):
+    population = generate_initial_pop(pop_size, structure_depth + 1, max_depth)
+
+    for organism in population:
+        queue = deque([organism])
+        id_queue = deque(initial_structure)
+
+        while len(id_queue) > 0:
+            node = queue.pop(0)
+            id = id_queue.pop(0)
+
+            if type(node) is FunctionNode:
+                for child in node._children:
+                    queue.append(child)
+
+            kind, item = rand.from_id(id)
+            match kind:
+                case 'num':
+                    new_node = NumberNode(item, node.depth, node.parent)
+                    children = [child if child != node else new_node for child in node.parent._children]
+                    node.parent._children = children
+                case 'func': 
+                    node._function = item
+                case 'param': 
+                    new_node = ParamNode(item, node.depth, node.parent)
+                    children = [child if child != node else new_node for child in node.parent._children]
+                    node.parent._children = children
+
+    return population
 
 # create the next population based of a previous generation
 # takes in the amount which should be created from crossover, mutation and reproduction as well as tournament size

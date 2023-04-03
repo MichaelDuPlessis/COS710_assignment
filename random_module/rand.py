@@ -76,3 +76,12 @@ def function_id(func: Callable[..., float]) -> int:
 # get the id of a param
 def param_id(param: str) -> int:
     return PARAMS.index(param) + len(PARAMS)
+
+def from_id(id: int) -> Tuple[str, Callable[..., float] | str | float]:
+    if id == -1:
+        return 'num', rand_num()
+    
+    if id < len(FUNCTIONS):
+        return 'func', FUNCTIONS[id]
+    
+    return 'param', PARAMS[id - len(PARAMS)]
