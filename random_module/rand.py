@@ -71,7 +71,9 @@ def rand_num(min: float = -3, max: float = 3) -> float:
 
 # get the id of a function
 def function_id(func: Callable[..., float]) -> int:
-    return FUNCTIONS.index(func)
+    for i, f in enumerate(FUNCTIONS):
+        if func.__name__ == f[1].__name__:
+            return i
 
 # get the id of a param
 def param_id(param: str) -> int:

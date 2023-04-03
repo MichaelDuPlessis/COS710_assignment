@@ -169,7 +169,7 @@ class FunctionNode(Node):
             cur_node = queue.pop()
 
             if cur_node.depth > depth:
-                return nodes_vals
+                return tuple(nodes_vals)
             
             if type(cur_node) is FunctionNode:
                 nodes_vals.append(function_id(cur_node._function))

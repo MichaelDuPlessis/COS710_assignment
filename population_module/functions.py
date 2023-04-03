@@ -2,6 +2,24 @@
 
 import math
 
+class Add:
+    def __call__(x: float, y: float) -> float:
+        return x + y
+    
+class Mul:
+    def __call__(x: float, y: float) -> float:
+        return x * y
+    
+class Sub:
+    def __call__(x: float, y: float) -> float:
+        return x - y
+    
+class Div:
+    def __call__(x: float, y: float) -> float:
+        if y == 0:
+            return 0
+        return x / y
+
 def add(x: float, y: float) -> float:
     return x + y
 
