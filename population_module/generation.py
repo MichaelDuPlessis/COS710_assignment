@@ -46,7 +46,7 @@ def generate_initial_pop(pop_size: int, max_depth: int) -> List[Node]:
 
     return [generate_tree(0, max_depth) for _ in range(pop_size)]
 
-# create initial population of certain size with certain depth
+# create initial population of certain size with certain depth and a gsim index to avoid
 def generate_initial_pop(pop_size: int, max_depth: int, gsim: Set[List[int]]) -> List[Node]:
     assert max_depth > 0, 'Max depth must be > 0'
 
@@ -57,6 +57,10 @@ def generate_initial_pop(pop_size: int, max_depth: int, gsim: Set[List[int]]) ->
             population.append(tree)
 
     return population
+
+# generate a new population based off of a local optimum
+def generate_with_initial_structure(pop_size: int, max_depth: int, initial_structure: FunctionNode):
+    pass
 
 # create the next population based of a previous generation
 # takes in the amount which should be created from crossover, mutation and reproduction as well as tournament size
