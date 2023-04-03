@@ -65,7 +65,25 @@ def rand_node(options: List[int], depth: int): # cannot have return type due to 
 
     return node
 
-
 # generates a random numebr between two ranges
 def rand_num(min: float = -3, max: float = 3) -> float:
     return random.uniform(min, max)
+
+# get the id of a function
+def function_id(func: Callable[..., float]) -> int:
+    for i, f in enumerate(FUNCTIONS):
+        if func.__name__ == f[1].__name__:
+            return i
+
+# get the id of a param
+def param_id(param: str) -> int:
+    return PARAMS.index(param) + len(PARAMS)
+
+def from_id(id: int) -> Tuple[str, Callable[..., float] | str | float]:
+    if id == -1:
+        return 'num', rand_num()
+    
+    if id < len(FUNCTIONS):
+        return 'func', FUNCTIONS[id][1]
+    
+    return 'param', PARAMS[id - len(PARAMS)]

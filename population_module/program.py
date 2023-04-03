@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Callable, Iterable, List
 import random
-from random_module.rand import rand_node
+from random_module.rand import rand_node, function_id, param_id
+from collections import deque
 
 # interface to for three children nodes
 class Node(ABC):
@@ -29,14 +30,28 @@ class Node(ABC):
     def update_depth(self, new_depth: int, max_depth: int):
         self.depth = new_depth
 
-    def choose_random_node(self) -> 'Node':
+    # def choose_random_node(self) -> 'Node':
+    #     nodes = []
+    #     self._linearize(nodes)
+    #     return random.choice(nodes)
+
+    # used for linearizing the tree
+    # def _linearize(self, node_list: List['Node']):
+    #     node_list.append(self)
+
+    def choose_random_node(self, depth: int = 0) -> 'Node':
         nodes = []
-        self._linearize(nodes)
+        self._linearize(nodes, depth)
         return random.choice(nodes)
 
     # used for linearizing the tree
-    def _linearize(self, node_list: List['Node']):
-        node_list.append(self)
+    def _linearize(self, node_list: List['Node'], depth: int = 0):
+        if self.depth > depth:
+            node_list.append(self)
+
+    # overloading equals operator
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, self.__class__)
 
 # represents a terminal node (so just a single value) specifically a number
 class NumberNode(Node):
@@ -57,6 +72,9 @@ class NumberNode(Node):
     def __str__(self) -> str:
         return f'{self._val}\n'
     
+    def __eq__(self, other: object) -> bool:
+        return super().__eq__(other) and self._val == other._val
+    
 # represents a terminal node (so just a single value) specifically a paramter
 class ParamNode(Node):
     def __init__(self, param: str, depth: int, parent: Node = None):
@@ -75,6 +93,9 @@ class ParamNode(Node):
     
     def __str__(self) -> str:
         return f'{self._param}\n'
+    
+    def __eq__(self, other: object) -> bool:
+        return super().__eq__(other) and self._param == other._param
 
 # reprsents a function node which takes a variable amount of paramters an a function list
 class FunctionNode(Node):
@@ -97,8 +118,15 @@ class FunctionNode(Node):
                 node.parent = self
             self._children.extend(n)
 
-    def _linearize(self, node_list: List[Node]):
-        node_list.append(self)
+    # def _linearize(self, node_list: List[Node]):
+    #     node_list.append(self)
+    #     for child in self._children:
+    #         child._linearize(node_list)
+
+    def _linearize(self, node_list: List[Node], depth: int = 0):
+        if self.depth > depth:
+            node_list.append(self)
+            
         for child in self._children:
             child._linearize(node_list)
 
@@ -126,3 +154,31 @@ class FunctionNode(Node):
     
     def __str__(self) -> str:
         return f'{self._function.__name__}\n{"".join([child.node_str(1) for child in self._children])}'
+    
+    def __eq__(self, other: object) -> bool:
+        return super().__eq__(other) and self._function == other._function
+    
+    # used for structure based gp to get teh structure as a byte array/list to compare
+    # only goes to depth specified
+    # it does this by bfs
+    def to_structure_list(self, depth: int) -> List[int]:
+        queue = deque([self])
+        nodes_vals = []
+
+        while len(queue) > 0:
+            cur_node = queue.pop()
+
+            if cur_node.depth > depth:
+                return tuple(nodes_vals)
+            
+            if type(cur_node) is FunctionNode:
+                nodes_vals.append(function_id(cur_node._function))
+
+                for child in cur_node._children:
+                    queue.append(child)
+            elif type(cur_node) is ParamNode:
+                nodes_vals.append(param_id(cur_node._param))
+            else:
+                nodes_vals.append(-1)
+
+        return tuple(nodes_vals)
