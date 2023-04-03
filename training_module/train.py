@@ -4,7 +4,7 @@ import sys
 import time
 from performance_module.measures import run_all_measures
 from selection_module.fitness import raw_fitness
-from population_module.generation import generate_initial_pop, generate_next_populateion
+from population_module.generation import generate_initial_pop, generate_next_populateion, generate_pop_with_initial_structure
 from random_module import rand
 from typing import List, Dict
 import json
@@ -219,12 +219,14 @@ def run_sgp(pop_size: int, max_depth: int, max_generations: int, desired_fitness
                     print(f'Generation {g} best score: {best[0] / training_data_size}')
 
                     # checking if we want to generate a new structure
-                    if best[0] > change_start - change_wanted:
+                    if structure_want and best[0] > change_start - change_wanted:
                         # if the current structure appears at least 70% than add to avoid
                         if structures.count(structures[-1]) / len(structures) > 0.7:
                             print("Local optimum found adding to index")
                             gsim.add(structures[-1])
                             structure_want = structures[-1]
+                            population = generate_pop_with_initial_structure(pop_size, max_depth, structure_want, structure_depth)
+                            population_fitness = [(raw_fitness(p, train_data, multithreading=multithreading), p) for p in population] # fitness first as max looks at first element in tuple
                         
                         structures = []
                         change_start = best[0]
