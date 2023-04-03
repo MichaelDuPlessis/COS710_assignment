@@ -166,7 +166,7 @@ class FunctionNode(Node):
         nodes_vals = []
 
         while len(queue) > 0:
-            cur_node = queue.pop(0)
+            cur_node = queue.pop()
 
             if cur_node.depth > depth:
                 return nodes_vals

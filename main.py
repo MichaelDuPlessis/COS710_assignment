@@ -4,8 +4,7 @@ import time
 from input_module.file_reader import read_csv
 import argparse
 import os
-
-from training_module.train import run_gp
+from training_module.train import run_gp, run_sgp
 
 if __name__ == '__main__':
     # creating command line arguments
@@ -24,7 +23,7 @@ if __name__ == '__main__':
     default_path = os.sep.join(['.', 'data', 'For_modeling.csv'])
     parser.add_argument('-P', '--path', help=f'The path to the data set. default {default_path}', default=default_path, type=str)
     parser.add_argument('-m', '--multithreading', help=f'Whether multithreading should be used and number of cores to use. default off', type=int)
-    parser.add_argument('-k', '-kind', help=f'What kind of AI to use, gp, sgp, ge. default gp', default='gp', type=str)
+    parser.add_argument('-k', '--kind', help=f'What kind of AI to use, gp, sgp, ge. default gp', default='gp', type=str)
     args = parser.parse_args()
 
     weights = [float(w) for w in args.weights.split(',')]
@@ -42,7 +41,10 @@ if __name__ == '__main__':
                 seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
             )
         case 'sgp':
-            print('not yet implemented')
+            run_sgp(args.pop, args.depth, args.generations, args.fitness, data[:args.train], data[args.train:],
+                save=args.save, runs=args.runs, tournament_size=args.tournament, multithreading=args.multithreading,
+                seed=args.seed, seed_set=not not args.seed, cross_per=weights[0], mut_per=weights[1], repro_per=weights[2],
+            )
         case 'ge':
             print('not yet implemented')
 

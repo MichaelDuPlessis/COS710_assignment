@@ -8,12 +8,9 @@ import math
 import copy
 from collections import deque
 
-# generate a single tree of the population from 0 to max depth
-def generate_tree(current_depth: int, max_depth: int) -> Node:
-    return generate_tree(current_depth, 0, max_depth)
 
-# generate a single tree of the population from 0 to max depth
-def generate_tree(current_depth: int, min_depth: int, max_depth: int) -> Node:
+# generate a single tree of the population to max depth
+def generate_tree(current_depth: int, max_depth: int, min_depth: int = 0) -> Node:
     # if this is the first node we are generating make sure it is a function node
     if current_depth <= min_depth:
         arg_count, func = rand.rand_func()
@@ -52,13 +49,13 @@ def generate_initial_pop(pop_size: int, max_depth: int) -> List[Node]:
     return [generate_tree(0, max_depth) for _ in range(pop_size)]
 
 # create initial population of certain size with certain depth and a gsim index to avoid
-def generate_initial_pop(pop_size: int, max_depth: int, gsim: Set[List[int]]) -> List[Node]:
+def generate_initial_pop(pop_size: int, max_depth: int, gsim: Set[List[int]], structure_depth: int) -> List[Node]:
     assert max_depth > 0, 'Max depth must be > 0'
 
     population = []
     while len(population) < pop_size:
         tree = generate_tree(0, max_depth)
-        if tree not in gsim:
+        if tree.to_structure_list(structure_depth) not in gsim:
             population.append(tree)
 
     return population
@@ -72,8 +69,8 @@ def generate_pop_with_initial_structure(pop_size: int, max_depth: int, initial_s
         id_queue = deque(initial_structure)
 
         while len(id_queue) > 0:
-            node = queue.pop(0)
-            id = id_queue.pop(0)
+            node = queue.pop()
+            id = id_queue.pop()
 
             if type(node) is FunctionNode:
                 for child in node._children:

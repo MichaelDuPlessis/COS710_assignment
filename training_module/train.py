@@ -183,7 +183,7 @@ def run_sgp(pop_size: int, max_depth: int, max_generations: int, desired_fitness
         }
 
         start = time.time()
-        population = generate_initial_pop(pop_size, max_depth, gsim)
+        population = generate_initial_pop(pop_size, max_depth, gsim, structure_depth)
         population_fitness = [(raw_fitness(p, train_data, multithreading=multithreading), p) for p in population] # fitness first as max looks at first element in tuple
         best = min(population_fitness, key=lambda p: p[0])
 
