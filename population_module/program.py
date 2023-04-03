@@ -144,7 +144,7 @@ class FunctionNode(Node):
     # used for structure based gp to get teh structure as a byte array/list to compare
     # only goes to depth specified
     # it does this by bfs
-    def to_byte_list(self, depth: int) -> List[Node]:
+    def to_structure_list(self, depth: int) -> List[Node]:
         queue = deque([self])
         nodes = []
 
