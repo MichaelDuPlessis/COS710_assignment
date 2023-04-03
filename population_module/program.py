@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Callable, Iterable, List
 import random
 from random_module.rand import rand_node
+from collections import deque
 
 # interface to for three children nodes
 class Node(ABC):
@@ -38,6 +39,10 @@ class Node(ABC):
     def _linearize(self, node_list: List['Node']):
         node_list.append(self)
 
+    # overloading equals operator
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, self.__class__)
+
 # represents a terminal node (so just a single value) specifically a number
 class NumberNode(Node):
     def __init__(self, val: float, depth: int, parent: Node = None):
@@ -57,6 +62,9 @@ class NumberNode(Node):
     def __str__(self) -> str:
         return f'{self._val}\n'
     
+    def __eq__(self, other: object) -> bool:
+        return super().__eq__(other) and self._val == other._val
+    
 # represents a terminal node (so just a single value) specifically a paramter
 class ParamNode(Node):
     def __init__(self, param: str, depth: int, parent: Node = None):
@@ -75,6 +83,9 @@ class ParamNode(Node):
     
     def __str__(self) -> str:
         return f'{self._param}\n'
+    
+    def __eq__(self, other: object) -> bool:
+        return super().__eq__(other) and self._param == other._param
 
 # reprsents a function node which takes a variable amount of paramters an a function list
 class FunctionNode(Node):
@@ -126,3 +137,25 @@ class FunctionNode(Node):
     
     def __str__(self) -> str:
         return f'{self._function.__name__}\n{"".join([child.node_str(1) for child in self._children])}'
+    
+    def __eq__(self, other: object) -> bool:
+        return super().__eq__(other) and self._function == other._function
+    
+    # used for structure based gp to get teh structure as a byte array/list to compare
+    # only goes to depth specified
+    # it does this by bfs
+    def to_byte_list(self, depth: int) -> List[Node]:
+        queue = deque([self])
+        nodes = []
+
+        while len(queue) > 0:
+            cur_node = queue.pop(0)
+
+            if cur_node.depth > depth:
+                return nodes
+            
+            nodes.append(cur_node)
+
+            if type(cur_node) is FunctionNode:
+                for child in cur_node._children:
+                    queue.append(child)
