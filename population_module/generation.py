@@ -43,26 +43,29 @@ def generate_tree(current_depth: int, max_depth: int, min_depth: int = 0) -> Nod
     return node
 
 # create initial population of certain size with certain depth
-def generate_initial_pop(pop_size: int, max_depth: int) -> List[Node]:
-    assert max_depth > 0, 'Max depth must be > 0'
+# def generate_initial_pop(pop_size: int, max_depth: int) -> List[Node]:
+#     assert max_depth > 0, 'Max depth must be > 0'
 
-    return [generate_tree(0, max_depth) for _ in range(pop_size)]
+#     return [generate_tree(0, max_depth) for _ in range(pop_size)]
 
 # create initial population of certain size with certain depth and a gsim index to avoid
-def generate_initial_pop(pop_size: int, max_depth: int, gsim: Set[List[int]], structure_depth: int) -> List[Node]:
+def generate_initial_pop(pop_size: int, max_depth: int, structure_depth: int = None, gsim: Set[List[int]] = None) -> List[Node]:
     assert max_depth > 0, 'Max depth must be > 0'
 
-    population = []
-    while len(population) < pop_size:
-        tree = generate_tree(0, max_depth)
-        if tree.to_structure_list(structure_depth) not in gsim:
-            population.append(tree)
+    if gsim and structure_depth:
+        population = []
+        while len(population) < pop_size:
+            tree = generate_tree(0, max_depth, structure_depth)
+            if tree.to_structure_list(structure_depth) not in gsim:
+                population.append(tree)
 
-    return population
+        return population
+    
+    return [generate_tree(0, max_depth) for _ in range(pop_size)]
 
 # generate a new population based off of a local optimum
-def generate_pop_with_initial_structure(pop_size: int, max_depth: int, initial_structure: List[int], structure_depth: int):
-    population = generate_initial_pop(pop_size, structure_depth + 1, max_depth)
+def generate_pop_with_initial_structure(pop_size: int, max_depth: int, initial_structure: Tuple[int], structure_depth: int):
+    population = generate_initial_pop(pop_size, max_depth, structure_depth + 1, set())
 
     for organism in population:
         queue = deque([organism])
@@ -116,14 +119,14 @@ def generate_next_populateion(prev_population: List[Node], test_data: List[Dict[
 # takes in the amount which should be created from crossover, mutation and reproduction as well as tournament size
 # crossover should not be halved as it is in the function
 # can pass in the best node to ensure that it stays for next generation
-def generate_next_populateion(prev_population_score: List[Tuple[float, Node]], max_depth: int, cross_amount: int, mut_amount: int, repro_amount: int, tournament_size: int = 4) -> List[Node]:    
+def generate_next_populateion(prev_population_score: List[Tuple[float, Node]], max_depth: int, cross_amount: int, mut_amount: int, repro_amount: int, tournament_size: int = 4, structure_depth: int = 0) -> List[Node]:    
     # maybe change this to be mulithreaded based on pop_size
 
     # crossover
-    population = [program for program in crossover(tournament(prev_population_score, tournament_size), tournament(prev_population_score, tournament_size), max_depth) for _ in range(math.trunc(cross_amount / 2))]
+    population = [program for program in crossover(tournament(prev_population_score, tournament_size), tournament(prev_population_score, tournament_size), max_depth, structure_depth) for _ in range(math.trunc(cross_amount / 2))]
 
     # mutation
-    population.extend(mutate(tournament(prev_population_score, tournament_size), max_depth) for _ in range(math.trunc(mut_amount)))
+    population.extend(mutate(tournament(prev_population_score, tournament_size), max_depth, structure_depth) for _ in range(math.trunc(mut_amount)))
 
     # reproduction
     population.extend(copy.deepcopy(tournament(prev_population_score, tournament_size)) for _ in range(math.trunc(repro_amount)))

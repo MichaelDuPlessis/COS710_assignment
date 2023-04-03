@@ -84,6 +84,6 @@ def from_id(id: int) -> Tuple[str, Callable[..., float] | str | float]:
         return 'num', rand_num()
     
     if id < len(FUNCTIONS):
-        return 'func', FUNCTIONS[id]
+        return 'func', FUNCTIONS[id][1]
     
     return 'param', PARAMS[id - len(PARAMS)]

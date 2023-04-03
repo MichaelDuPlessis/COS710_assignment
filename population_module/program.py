@@ -30,22 +30,22 @@ class Node(ABC):
     def update_depth(self, new_depth: int, max_depth: int):
         self.depth = new_depth
 
-    def choose_random_node(self) -> 'Node':
-        nodes = []
-        self._linearize(nodes)
-        return random.choice(nodes)
+    # def choose_random_node(self) -> 'Node':
+    #     nodes = []
+    #     self._linearize(nodes)
+    #     return random.choice(nodes)
 
     # used for linearizing the tree
-    def _linearize(self, node_list: List['Node']):
-        node_list.append(self)
+    # def _linearize(self, node_list: List['Node']):
+    #     node_list.append(self)
 
-    def choose_random_node(self, depth: int) -> 'Node':
+    def choose_random_node(self, depth: int = 0) -> 'Node':
         nodes = []
         self._linearize(nodes, depth)
         return random.choice(nodes)
 
     # used for linearizing the tree
-    def _linearize(self, node_list: List['Node'], depth: int):
+    def _linearize(self, node_list: List['Node'], depth: int = 0):
         if self.depth > depth:
             node_list.append(self)
 
@@ -118,12 +118,12 @@ class FunctionNode(Node):
                 node.parent = self
             self._children.extend(n)
 
-    def _linearize(self, node_list: List[Node]):
-        node_list.append(self)
-        for child in self._children:
-            child._linearize(node_list)
+    # def _linearize(self, node_list: List[Node]):
+    #     node_list.append(self)
+    #     for child in self._children:
+    #         child._linearize(node_list)
 
-    def _linearize(self, node_list: List[Node], depth: int):
+    def _linearize(self, node_list: List[Node], depth: int = 0):
         if self.depth > depth:
             node_list.append(self)
             
@@ -180,3 +180,5 @@ class FunctionNode(Node):
                 nodes_vals.append(param_id(cur_node._param))
             else:
                 nodes_vals.append(-1)
+
+        return tuple(nodes_vals)

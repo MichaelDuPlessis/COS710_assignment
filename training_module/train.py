@@ -183,16 +183,15 @@ def run_sgp(pop_size: int, max_depth: int, max_generations: int, desired_fitness
         }
 
         start = time.time()
-        population = generate_initial_pop(pop_size, max_depth, gsim, structure_depth)
+        population = generate_initial_pop(pop_size, max_depth, structure_depth, gsim)
         population_fitness = [(raw_fitness(p, train_data, multithreading=multithreading), p) for p in population] # fitness first as max looks at first element in tuple
         best = min(population_fitness, key=lambda p: p[0])
 
         # the structure that we want to keep generating
         structures = [best[1].to_structure_list(structure_depth)]
         # what we will compare to when we decide if we want to change the structure or not
-        change_start = best[0]
-        # the strucutre that we are mainting to search for
-        structure_want = None
+        # whether we have found a local optimum
+        local_optimum = False
 
         run_data['generations'].append({
             'generation': 0,
@@ -207,7 +206,7 @@ def run_sgp(pop_size: int, max_depth: int, max_generations: int, desired_fitness
         else:
             for g in range(1, max_generations):
                 population = generate_next_populateion(population_fitness, max_depth, pop_size * cross_per,
-                                                       pop_size * mut_per, pop_size * repro_per, tournament_size)
+                                                       pop_size * mut_per, pop_size * repro_per, tournament_size, structure_depth if local_optimum else 0)
 
                 population_fitness = [(raw_fitness(p, train_data, multithreading=multithreading), p) for p in population] # fitness first as max looks at first element in tuple
                 best = min(population_fitness, key=lambda p: p[0])
@@ -219,7 +218,8 @@ def run_sgp(pop_size: int, max_depth: int, max_generations: int, desired_fitness
                     print(f'Generation {g} best score: {best[0] / training_data_size}')
 
                     # checking if we want to generate a new structure
-                    if structure_want and best[0] > change_start - change_wanted:
+                    if not local_optimum:
+                        print(structures.count(structures[-1]) / len(structures))
                         # if the current structure appears at least 70% than add to avoid
                         if structures.count(structures[-1]) / len(structures) > 0.7:
                             print("Local optimum found adding to index")
@@ -227,9 +227,9 @@ def run_sgp(pop_size: int, max_depth: int, max_generations: int, desired_fitness
                             structure_want = structures[-1]
                             population = generate_pop_with_initial_structure(pop_size, max_depth, structure_want, structure_depth)
                             population_fitness = [(raw_fitness(p, train_data, multithreading=multithreading), p) for p in population] # fitness first as max looks at first element in tuple
+                            local_optimum = True
                         
                         structures = []
-                        change_start = best[0]
 
                     run_data['generations'].append({
                         'generation': g,
