@@ -3,6 +3,8 @@ This is an genetic program to calculate the duration of a bike trip in Seoul acc
 
 The dataset reading as well as fitness calculations can be done in parallel.
 
+It is expected that the data and runs folder exist, if it does not exist create it.
+
 # Structure
 - Requirments.txt holds all the package requirments to run the program, use "pip install -r requirements.txt"
 - The data folder holds the data set which can be found at https://data.mendeley.com/datasets/gtfh9z865f/1. The data set is not pushed to github as it is too large
