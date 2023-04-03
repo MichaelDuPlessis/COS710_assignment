@@ -133,10 +133,10 @@ def run_gp(pop_size: int, max_depth: int, max_generations: int, desired_fitness:
 # max_generations is the number of generations and the function ends either when desrid fitness is met or max_generations is met
 # cross_per + mut_per + repro_per = 1 must be true, structure depth is the depth at which a trees structure can be compared,
 # comparison_len the number of generations between structure comparisons, change_wanted is the amount of change required not to change the structure
-def run_gp(pop_size: int, max_depth: int, max_generations: int, desired_fitness: float, train_data: List[Dict[str, float]],
+def run_sgp(pop_size: int, max_depth: int, max_generations: int, desired_fitness: float, train_data: List[Dict[str, float]],
         test_data: List[Dict[str, float]], tournament_size: int = 4, runs: int = 1, save: bool = False, cross_per: float = 0.5,
         mut_per: float = 0.5, repro_per: float = 0, seed: int = None , seed_set: bool = False, multithreading: int = None,
-        structure_depth: int  = 1, comparison_len: int = 5, change_wanted: float = 5.0):
+        structure_depth: int  = 1, comparison_len: int = 10, change_wanted: float = 5.0):
     
     training_data_size = len(train_data)
 
@@ -145,6 +145,9 @@ def run_gp(pop_size: int, max_depth: int, max_generations: int, desired_fitness:
         dt_string = now.strftime("%d-%m-%Y_%H#%M#%S")
         folder = os.sep.join(['.', 'runs', f'{dt_string}'])
         os.mkdir(folder)
+
+    # the structures we have already generated and want to avoid it can be thought of as a global index
+    gsim = set()
 
     for r in range(runs):
         # run number
@@ -185,18 +188,17 @@ def run_gp(pop_size: int, max_depth: int, max_generations: int, desired_fitness:
         best = min(population_fitness, key=lambda p: p[0])
 
         # the structure that we want to keep generating
-        structure_want = best[1].to_structure_list(structure_depth)
-        # the structures we have already generated and want to avoid
-        structures_avoid = []
+        structures = [best[1].to_structure_list(structure_depth)]
         # what we will compare to when we decide if we want to change the structure or not
         change_start = best[0]
+        # the strucutre that we are mainting to search for
+        structure_want = None
 
         run_data['generations'].append({
             'generation': 0,
             'best_score': best[0],
             'best_tree': best[1].serialize()
         })
-
 
         g = 0 # incase loop is never entered
         if best[0] / training_data_size <= desired_fitness: # taking average for fitness
@@ -210,8 +212,7 @@ def run_gp(pop_size: int, max_depth: int, max_generations: int, desired_fitness:
                 population_fitness = [(raw_fitness(p, train_data, multithreading=multithreading), p) for p in population] # fitness first as max looks at first element in tuple
                 best = min(population_fitness, key=lambda p: p[0])
 
-                if not structure_want:
-                    structure_want = best[1].to_structure_list(structure_depth)
+                structures.append(best[1].to_structure_list(structure_depth))
 
                 # only printing every 10th generation should make command line parameter
                 if (g + 1) % comparison_len == 0:
@@ -219,8 +220,14 @@ def run_gp(pop_size: int, max_depth: int, max_generations: int, desired_fitness:
 
                     # checking if we want to generate a new structure
                     if best[0] > change_start - change_wanted:
-                        structures_avoid.append(structure_want)
-                        structure_want = None # so we can reset it later
+                        # if the current structure appears at least 70% than add to avoid
+                        if structures.count(structures[-1]) / len(structures) > 0.7:
+                            print("Adding to index")
+                            gsim.add(structures[-1])
+                            structure_want = structures[-1]
+                        
+                        structures = []
+                        change_start = best[0]
 
                     run_data['generations'].append({
                         'generation': g,

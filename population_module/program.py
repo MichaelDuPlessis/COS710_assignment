@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Callable, Iterable, List
 import random
-from random_module.rand import rand_node
+from random_module.rand import rand_node, function_id, param_id
 from collections import deque
 
 # interface to for three children nodes
@@ -38,6 +38,16 @@ class Node(ABC):
     # used for linearizing the tree
     def _linearize(self, node_list: List['Node']):
         node_list.append(self)
+
+    def choose_random_node(self, depth: int) -> 'Node':
+        nodes = []
+        self._linearize(nodes, depth)
+        return random.choice(nodes)
+
+    # used for linearizing the tree
+    def _linearize(self, node_list: List['Node'], depth: int):
+        if self.depth > depth:
+            node_list.append(self)
 
     # overloading equals operator
     def __eq__(self, other: object) -> bool:
@@ -113,6 +123,13 @@ class FunctionNode(Node):
         for child in self._children:
             child._linearize(node_list)
 
+    def _linearize(self, node_list: List[Node], depth: int):
+        if self.depth > depth:
+            node_list.append(self)
+            
+        for child in self._children:
+            child._linearize(node_list)
+
     def serialize(self) -> str:
         return f'{self._function.__name__}({" ".join([child.serialize() for child in self._children])})'
 
@@ -144,18 +161,24 @@ class FunctionNode(Node):
     # used for structure based gp to get teh structure as a byte array/list to compare
     # only goes to depth specified
     # it does this by bfs
-    def to_structure_list(self, depth: int) -> List[Node]:
+    def to_structure_list(self, depth: int) -> List[int]:
         queue = deque([self])
-        nodes = []
+        nodes_vals = []
 
         while len(queue) > 0:
             cur_node = queue.pop(0)
 
             if cur_node.depth > depth:
-                return nodes
+                return nodes_vals
             
-            nodes.append(cur_node)
+            
 
             if type(cur_node) is FunctionNode:
+                nodes_vals.append(function_id(cur_node._function))
+
                 for child in cur_node._children:
                     queue.append(child)
+            elif type(cur_node) is ParamNode:
+                nodes_vals.append(param_id(cur_node._param))
+            else:
+                nodes_vals.append(-1)

@@ -1,5 +1,5 @@
 from population_module.program import FunctionNode, NumberNode, ParamNode, Node
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Set
 from random_module import rand
 from random import randint # not using my rand module because it was more confusing when generating the numbers
 from population_module.genetic_operators import crossover, mutate
@@ -45,6 +45,18 @@ def generate_initial_pop(pop_size: int, max_depth: int) -> List[Node]:
     assert max_depth > 0, 'Max depth must be > 0'
 
     return [generate_tree(0, max_depth) for _ in range(pop_size)]
+
+# create initial population of certain size with certain depth
+def generate_initial_pop(pop_size: int, max_depth: int, gsim: Set[List[int]]) -> List[Node]:
+    assert max_depth > 0, 'Max depth must be > 0'
+
+    population = []
+    while len(population) < pop_size:
+        tree = generate_tree(0, max_depth)
+        if tree not in gsim:
+            population.append(tree)
+
+    return population
 
 # create the next population based of a previous generation
 # takes in the amount which should be created from crossover, mutation and reproduction as well as tournament size
