@@ -221,7 +221,7 @@ def run_sgp(pop_size: int, max_depth: int, max_generations: int, desired_fitness
                     if not local_optimum:
                         print(structures.count(structures[-1]) / len(structures))
                         # if the current structure appears at least 70% than add to avoid
-                        if structures.count(structures[-1]) / len(structures) > 0.7:
+                        if structures.count(structures[-1]) / len(structures) >= 0.7:
                             print("Local optimum found adding to index")
                             gsim.add(structures[-1])
                             structure_want = structures[-1]
