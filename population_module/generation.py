@@ -119,19 +119,35 @@ def generate_next_populateion(prev_population: List[Node], test_data: List[Dict[
 # takes in the amount which should be created from crossover, mutation and reproduction as well as tournament size
 # crossover should not be halved as it is in the function
 # can pass in the best node to ensure that it stays for next generation
-def generate_next_populateion(prev_population_score: List[Tuple[float, Node]], max_depth: int, cross_amount: int, mut_amount: int, repro_amount: int, tournament_size: int = 4, structure_depth: int = 0) -> List[Node]:    
+def generate_next_populateion(prev_population_score: List[Tuple[float, Node]], max_depth: int, cross_amount: int, mut_amount: int, repro_amount: int, tournament_size: int = 4, gsim: Set[List[int]] = set(), structure_depth: int = 0) -> List[Node]:    
     # maybe change this to be mulithreaded based on pop_size
-
+    population = []
     # crossover
-    population = [program for program in crossover(tournament(prev_population_score, tournament_size), tournament(prev_population_score, tournament_size), max_depth, structure_depth) for _ in range(math.trunc(cross_amount / 2))]
+    while len(population) < math.trunc(cross_amount / 2):
+        program1, program2 = crossover(tournament(prev_population_score, tournament_size), tournament(prev_population_score, tournament_size), max_depth)
+        if not (program1.to_structure_list(structure_depth) in gsim or program2.to_structure_list(structure_depth) in gsim):
+            population.append(program1)
+            population.append(program2)
+    # crossover
+    # population = [program for program in crossover(tournament(prev_population_score, tournament_size), tournament(prev_population_score, tournament_size), max_depth, gsim, structure_depth) for _ in range(math.trunc(cross_amount / 2))]
 
     # mutation
-    population.extend(mutate(tournament(prev_population_score, tournament_size), max_depth, structure_depth) for _ in range(math.trunc(mut_amount)))
+    while len(population) < math.trunc(cross_amount / 2) + math.trunc(mut_amount):
+        program = mutate(tournament(prev_population_score, tournament_size), max_depth)
+        if program.to_structure_list(structure_depth) not in gsim:
+            population.append(program)
+    # mutation
+    # population.extend(mutate(tournament(prev_population_score, tournament_size), max_depth, gsim, structure_depth) for _ in range(math.trunc(mut_amount)))
 
     # reproduction
-    population.extend(copy.deepcopy(tournament(prev_population_score, tournament_size)) for _ in range(math.trunc(repro_amount)))
+    while len(population) < math.trunc(cross_amount / 2) + math.trunc(mut_amount) + math.trunc(repro_amount):
+        population.append(copy.deepcopy(tournament(prev_population_score, tournament_size)))
+    # reproduction
+    # population.extend(copy.deepcopy(tournament(prev_population_score, tournament_size)) for _ in range(math.trunc(repro_amount)))
 
     # using reproduction to fill remaining spots
-    population.extend(copy.deepcopy(tournament(prev_population_score, tournament_size)) for _ in range(len(prev_population_score) - len(population)))
+    while len(population) < len(prev_population_score):
+        population.append(copy.deepcopy(tournament(prev_population_score, tournament_size)))
+    # population.extend(copy.deepcopy(tournament(prev_population_score, tournament_size)) for _ in range(len(prev_population_score) - len(population)))
 
     return population

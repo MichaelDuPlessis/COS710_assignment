@@ -30,15 +30,6 @@ class Node(ABC):
     def update_depth(self, new_depth: int, max_depth: int):
         self.depth = new_depth
 
-    # def choose_random_node(self) -> 'Node':
-    #     nodes = []
-    #     self._linearize(nodes)
-    #     return random.choice(nodes)
-
-    # used for linearizing the tree
-    # def _linearize(self, node_list: List['Node']):
-    #     node_list.append(self)
-
     def choose_random_node(self, depth: int = 0) -> 'Node':
         nodes = []
         self._linearize(nodes, depth)

@@ -71,17 +71,17 @@ import copy
 
 # programs are cloned in crossover
 # this version is used in structure based gp
-def crossover(program1: Node, program2: Node, max_depth: int, structure_depth: int = 0) -> Tuple[Node, Node]:
+def crossover(program1: Node, program2: Node, max_depth: int) -> Tuple[Node, Node]:
     program1, program2 = copy.deepcopy(program1), copy.deepcopy(program2)
 
     # does not make sense swapping the root of the node
-    node1 = program1.choose_random_node(structure_depth)
+    node1 = program1.choose_random_node()
     while node1.parent == None:
-        node1 = program1.choose_random_node(structure_depth)
+        node1 = program1.choose_random_node()
 
-    node2 = program2.choose_random_node(structure_depth)
+    node2 = program2.choose_random_node()
     while node2.parent == None:
-        node2 = program2.choose_random_node(structure_depth)
+        node2 = program2.choose_random_node()
     
     parent1 = node1.parent
     depth1 = node1.depth
@@ -105,12 +105,12 @@ def crossover(program1: Node, program2: Node, max_depth: int, structure_depth: i
 # programs are cloned in mutate
 # max depth is used when generating subtrees
 # this version is used in structure based gp
-def mutate(program: Node, max_depth: int, structure_depth: int = 0) -> Node:
+def mutate(program: Node, max_depth: int) -> Node:
     from population_module.generation import generate_tree
     
     program = copy.deepcopy(program)
 
-    chosen_node = program.choose_random_node(structure_depth)
+    chosen_node = program.choose_random_node()
     chosen_parent = chosen_node.parent
 
     # if parent is none than at root node so may as well generate a new tree
